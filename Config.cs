@@ -9,6 +9,7 @@ public static class Config
         public bool FastSwing;
         public bool ShowNametag;
         public bool ShowMobTag;
+        public bool McMultiInstance;
     }
 
     private static string configPath = Environment.ExpandEnvironmentVariables(
@@ -51,6 +52,7 @@ public static class Config
                 CurrentConfig.FastSwing = false;
                 CurrentConfig.ShowNametag = true;
                 CurrentConfig.ShowMobTag = false;
+                CurrentConfig.McMultiInstance = false;
                 SaveConfig(true);
                 return true;
             }

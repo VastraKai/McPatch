@@ -89,6 +89,14 @@ public static partial class Console
     public static string WarningPrefix(string prefixText) => $"{PrefixColor}[{prefixText} {WarningTextColor}Warning{PrefixColor}]{R}";
     public static string ErrorPrefix(string prefixText) => $"{PrefixColor}[{prefixText} {ErrorTextColor}Error{PrefixColor}]{R}";
     public static string Prefix(string prefixText) => $"{PrefixColor}[{prefixText}]{R}";
+    public static void WaitForEnter()
+    {
+        Console.CursorVisible = false;
+        Console.ForegroundColor = Console.BackgroundColor;
+        Console.ReadLine();
+        Console.ResetColor();
+        Console.CursorVisible = true;
+    }
 
     public static string R = "\x001B[0m";
     public static string PrefixColor = Console.EscColor(0.0f, 1.0f, 1.0f);

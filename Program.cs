@@ -9,7 +9,12 @@ public static class Program
         try
         {
             if (args.Length > 0 && args[0].ToLower() == "--reset-config") Config.ResetConfig();
+
             Patcher();
+            // bruh i get up to 4 gigabytes of memory usage wtf
+            // the mc executable is like 100 megabytes it should not be that big
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
             Console.WriteLine($"{Console.Prefix("Patcher")} Settings applied successfully!");
             Util.OpenMc();
             Console.WriteLine($"{Console.Prefix("Patcher")} Press any key to exit...");
@@ -18,18 +23,21 @@ public static class Program
         catch (Exception ex)
         {
             Console.WriteLine($"{Console.ErrorPrefix("Patcher")} An exception was thrown (please report this): {ex}");
+            if(ex.GetType().ToString() == "System.ArgumentNullException") Console.WriteLine($"{Console.Prefix("Patcher")} Looks like an \"invalid sig\" error. Make sure your game isn't minimized then try again.");
+            Console.WriteLine($"{Console.Prefix("Patcher")} Press enter to exit...");
+            Console.WaitForEnter();
         }
     }
     private static void Patcher()
     {
+        M.Setup(false);
 
-        M.Setup();
         bool newConfig = Config.LoadConfig();
         if (newConfig)
             ConfigPrompt();
         else
         {
-            Console.Write($"{Console.Prefix("Patcher")} Edit config?");
+            Console.Write($"{Console.Prefix("Patcher")} Edit config? ");
             string key = Console.ReadKey(true).KeyChar.ToString().ToLower();
             Console.Write("\r                           \r");
             if (key == "y")
@@ -50,7 +58,7 @@ public static class Program
         string CurrentMcVersion = Util.McGetVersion();
         Console.WriteLine($"{Console.Prefix("Patcher Debug")} CurrentMcVersion: {CurrentMcVersion}");
 
-        string LastMcVersion = "";
+        string LastMcVersion;
         if (!File.Exists(LastMcVersionPath))
             LastMcVersion = CurrentMcVersion;
         else
@@ -59,7 +67,7 @@ public static class Program
 
         if (LastMcVersion != CurrentMcVersion && File.Exists(mcExeBak))
         {
-            Console.WriteLine($"{Console.PrefixColor}[McPatch]{Console.WarningTextColor} Minecraft version changed from {LastMcVersion} to {CurrentMcVersion}, recreating backup file.{Console.R}");
+            Console.WriteLine($"{Console.WarningPrefix("Patcher")} Minecraft version changed from {LastMcVersion} to {CurrentMcVersion}, recreating backup file.{Console.R}");
             File.Delete(mcExeBak);
             File.WriteAllText(LastMcVersionPath, CurrentMcVersion);
         }
@@ -73,55 +81,80 @@ public static class Program
         {
             string? PropertyName = property.Name;
             string? Address = property.GetValue(null).ToString();
-            string? bytes = M.mem.ReadBytes(Address, 11).ToHexString().Replace(" ", "");
             if (Address == "0")
             {
                 Console.WriteLine($"{Console.ErrorPrefix("Patcher")} Unable to find address for {PropertyName}, skipping... (dead sig?)");
-                break;
             }
-            Console.WriteLine($"{Console.Prefix("Patcher Debug")} Field Info for {PropertyName}: {Address}:{M.mem.ReadBytes(Address, 11).ToHexString()}");
-            switch (PropertyName)
+            else
             {
-                case "GuiScaleAddr":
-                    Fields.GuiScale = Config.CurrentConfig.GuiScale;
-                    string? newBytes1 = M.mem.ReadBytes(Address, 11).ToHexString().Replace(" ", "");
-                    mcHex.Replace(bytes, newBytes1);
-                    Console.WriteLine($"{Console.Prefix("Patcher")} GuiScale has been set to {Config.CurrentConfig.GuiScale}");
-                    break;
-                case "SprintAddr":
-                    if (!Config.CurrentConfig.AutoSprint) break;
-                    M.mem.WriteMemory(Address, "bytes", "49 8B C5 90");
-                    Console.WriteLine($"{Console.Prefix("Patcher")} SprintAddr has been enabled");
-                    break;
-                case "FastSwingAddr":
-                    if (!Config.CurrentConfig.FastSwing) break;
-                    M.mem.WriteMemory(Address, "byte", "EB");
-                    Console.WriteLine($"{Console.Prefix("Patcher")} FastSwing has been enabled");
-                    break;
-                case "ShowNameAddr":
-                    if (!Config.CurrentConfig.ShowNametag) break;
-                    M.mem.WriteMemory(Address, "bytes", "90 90 90 90 90 90");
-                    Console.WriteLine($"{Console.Prefix("Patcher")} ShowName has been enabled");
-                    break;
-                case "ShowMobtagAddr":
-                    if (!Config.CurrentConfig.ShowMobTag) break;
-                    M.mem.WriteMemory(Address, "bytes", "90 90 90 90 90 90");
-                    Console.WriteLine($"{Console.Prefix("Patcher")} ShowMobtag has been enabled");
-                    break;
-                default:
-                    Console.WriteLine($"{Console.WarningPrefix("Patcher")} Case for property " + PropertyName + " not found!");
-                    break;
+                string? bytes = M.mem.ReadBytes(Address, 11).ToHexString().Replace(" ", "");
+                Console.WriteLine($"{Console.Prefix("Patcher Debug")} Field Info for {PropertyName}: {Address}:{M.mem.ReadBytes(Address, 11).ToHexString()}");
+                switch (PropertyName)
+                {
+                    case "GuiScaleAddr":
+                        Fields.GuiScale = Config.CurrentConfig.GuiScale;
+                        string? newBytes1 = M.mem.ReadBytes(Address, 11).ToHexString().Replace(" ", "");
+                        mcHex.Replace(bytes, newBytes1);
+                        Console.WriteLine($"{Console.Prefix("Patcher")} GuiScale has been set to {Config.CurrentConfig.GuiScale}");
+                        break;
+                    case "SprintAddr":
+                        if (!Config.CurrentConfig.AutoSprint) break;
+                        M.mem.WriteMemory(Address, "bytes", "49 8B C5 90");
+                        Console.WriteLine($"{Console.Prefix("Patcher")} SprintAddr has been enabled");
+                        break;
+                    case "FastSwingAddr":
+                        if (!Config.CurrentConfig.FastSwing) break;
+                        M.mem.WriteMemory(Address, "byte", "EB");
+                        Console.WriteLine($"{Console.Prefix("Patcher")} FastSwing has been enabled");
+                        break;
+                    case "ShowNameAddr":
+                        if (!Config.CurrentConfig.ShowNametag) break;
+                        M.mem.WriteMemory(Address, "bytes", "90 90 90 90 90 90");
+                        Console.WriteLine($"{Console.Prefix("Patcher")} ShowName has been enabled");
+                        break;
+                    case "ShowMobtagAddr":
+                        if (!Config.CurrentConfig.ShowMobTag) break;
+                        M.mem.WriteMemory(Address, "bytes", "90 90 90 90 90 90");
+                        Console.WriteLine($"{Console.Prefix("Patcher")} ShowMobtag has been enabled");
+                        break;
+                    default:
+                        Console.WriteLine($"{Console.WarningPrefix("Patcher")} Case for property " + PropertyName + " not found!");
+                        break;
+                }
+                string? newBytes = M.mem.ReadBytes(Address, 11).ToHexString().Replace(" ", "");
+                mcHex = mcHex.Replace(bytes, newBytes);
             }
-            string? newBytes = M.mem.ReadBytes(Address, 11).ToHexString().Replace(" ", "");
-            mcHex = mcHex.Replace(bytes, newBytes);
         }
 
         Console.WriteLine($"{Console.Prefix("Patcher Debug")} Killing Minecraft");
         Util.McProcess.Kill();
+        M.mem.CloseProcess();
         Console.WriteLine($"{Console.Prefix("Patcher Debug")} Setting access permissions for path {mcPath}");
         Util.GrantAccess(mcPath); // Make the original file writable
         Console.WriteLine($"{Console.Prefix("Patcher Debug")} Writing new bytes to mcExe");
         File.WriteAllBytesAsync(mcExe, mcHex.FromHexString()).Wait(); // Write the new contents to the temp file
+        if (Util.IsDeveloperModeEnabled())
+        {
+            if (Config.CurrentConfig.McMultiInstance)
+            {
+                Console.WriteLine($"{Console.Prefix("Patcher Debug")} Enabling multi instance, patching AppxManifest file");
+                ClientUtils.EnableMultiInstance(mcPath);
+                Console.WriteLine($"{Console.Prefix("Patcher Debug")} Re-registering appx");
+                Util.ReRegisterPackage("Microsoft.MinecraftUWP_8wekyb3d8bbwe", mcPath).Wait();
+            }
+            else
+            {
+                Console.WriteLine($"{Console.Prefix("Patcher Debug")} Disabling multi instance, patching AppxManifest file");
+                ClientUtils.DisableMultiInstance(mcPath);
+                Console.WriteLine($"{Console.Prefix("Patcher Debug")} Re-registering appx");
+                Util.ReRegisterPackage("Microsoft.MinecraftUWP_8wekyb3d8bbwe", mcPath).Wait();
+            }
+        }
+        else
+        {
+            Console.WriteLine($"{Console.Prefix("Patcher")} Unable to use multi-instance: Developer mode is not enabled.");
+            Console.WriteLine($"{Console.Prefix("Patcher")} Please enable developer mode in ms-settings:developers.");
+        }
         Console.WriteLine($"{Console.Prefix("Patcher Debug")} Writing new version file");
         File.WriteAllText(LastMcVersionPath, CurrentMcVersion);
     }
@@ -136,8 +169,9 @@ public static class Program
             Console.WriteLine("3) Fast Swing: " + (Config.CurrentConfig.FastSwing ? "Enabled" : "Disabled"));
             Console.WriteLine("4) Show Player Nametag: " + (Config.CurrentConfig.ShowNametag ? "Enabled" : "Disabled"));
             Console.WriteLine("5) Show Mob Nametag: " + (Config.CurrentConfig.ShowMobTag ? "Enabled" : "Disabled"));
-            Console.WriteLine("6) Save Config");
-            Console.WriteLine("7) Exit Menu");
+            Console.WriteLine("6) Minecraft Multi-Instance: " + (Config.CurrentConfig.McMultiInstance ? "Enabled" : "Disabled"));
+            Console.WriteLine("7) Save Config");
+            Console.WriteLine("8) Exit Menu");
             Console.Write("Select an option: ");
         ret:
             string selection = Console.ReadKey().KeyChar.ToString().ToLower();
@@ -169,10 +203,13 @@ public static class Program
                     Config.CurrentConfig.ShowMobTag = !Config.CurrentConfig.ShowMobTag;
                     break;
                 case "6":
+                    Config.CurrentConfig.McMultiInstance = !Config.CurrentConfig.McMultiInstance;
+                    break;
+                case "7":
                     Config.SaveConfig();
                     Thread.Sleep(1000);
                     break;
-                case "7":
+                case "8":
                     Console.SwitchToMainBuffer();
                     Config.SaveConfig();
                     return;
