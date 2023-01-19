@@ -22,11 +22,19 @@ public static class Program
     }
     private static void Patcher()
     {
-        
+
         M.Setup();
         bool newConfig = Config.LoadConfig();
         if (newConfig)
             ConfigPrompt();
+        else
+        {
+            Console.Write($"{Console.Prefix("Patcher")} Edit config?");
+            string key = Console.ReadKey(true).KeyChar.ToString().ToLower();
+            if (key == "y")
+                ConfigPrompt();
+        }
+
         Console.WriteLine($"{Console.Prefix("Patcher")} Preparing...");
         string mcPath = Path.GetFullPath(Util.McProcess.MainModule.FileName).Replace("Minecraft.Windows.exe", "");
         Console.WriteLine($"{Console.Prefix("Patcher Debug")} mcPath: {mcPath}");
@@ -36,16 +44,18 @@ public static class Program
         Console.WriteLine($"{Console.Prefix("Patcher Debug")} mcExeBak: {mcExeBak}");
 
         #region backup stuff
-        string CurrentMcVersion = Util.McGetVersion();
-        Console.WriteLine($"{Console.Prefix("Patcher Debug")} CurrentMcVersion: {CurrentMcVersion}");
         string LastMcVersionPath = Environment.ExpandEnvironmentVariables("%localappdata%\\packages\\Microsoft.MinecraftUWP_8wekyb3d8bbwe\\roamingstate\\lastMcVersion.txt");
         Console.WriteLine($"{Console.Prefix("Patcher Debug")} LastMcVersionPath: {LastMcVersionPath}");
+        string CurrentMcVersion = Util.McGetVersion();
+        Console.WriteLine($"{Console.Prefix("Patcher Debug")} CurrentMcVersion: {CurrentMcVersion}");
+
         string LastMcVersion = "";
         if (!File.Exists(LastMcVersionPath))
             LastMcVersion = CurrentMcVersion;
         else
             LastMcVersion = File.ReadAllText(LastMcVersionPath).Replace("\n", "");
         Console.WriteLine($"{Console.Prefix("Patcher Debug")} LastMcVersion: {LastMcVersion}");
+
         if (LastMcVersion != CurrentMcVersion && File.Exists(mcExeBak))
         {
             Console.WriteLine($"{Console.PrefixColor}[McPatch]{Console.WarningTextColor} Minecraft version changed from {LastMcVersion} to {CurrentMcVersion}, recreating backup file.{Console.R}");
@@ -54,10 +64,10 @@ public static class Program
         }
         if (!File.Exists(mcExeBak)) File.Copy(mcExe, mcExeBak, true);
         #endregion
-        //File.Copy(mcExeBak, mcTmpExe, true);
-        string mcTmpHex = File.ReadAllBytes(mcExe).ToHexString().Replace(" ", "");
+
+        string mcHex = File.ReadAllBytes(mcExe).ToHexString().Replace(" ", "");
         Console.WriteLine($"{Console.Prefix("Patcher")} Applying settings...");
-        // for every string in Fields.Address, output the string
+
         foreach (PropertyInfo property in typeof(Fields.Address).GetProperties())
         {
             string? PropertyName = property.Name;
@@ -74,7 +84,7 @@ public static class Program
                 case "GuiScaleAddr":
                     Fields.GuiScale = Config.CurrentConfig.GuiScale;
                     string? newBytes1 = M.mem.ReadBytes(Address, 11).ToHexString().Replace(" ", "");
-                    mcTmpHex.Replace(bytes, newBytes1);
+                    mcHex.Replace(bytes, newBytes1);
                     Console.WriteLine($"{Console.Prefix("Patcher")} GuiScale has been set to {Config.CurrentConfig.GuiScale}");
                     break;
                 case "SprintAddr":
@@ -102,14 +112,15 @@ public static class Program
                     break;
             }
             string? newBytes = M.mem.ReadBytes(Address, 11).ToHexString().Replace(" ", "");
-            mcTmpHex = mcTmpHex.Replace(bytes, newBytes);
+            mcHex = mcHex.Replace(bytes, newBytes);
         }
+
         Console.WriteLine($"{Console.Prefix("Patcher Debug")} Killing Minecraft");
         Util.McProcess.Kill();
         Console.WriteLine($"{Console.Prefix("Patcher Debug")} Setting access permissions for path {mcPath}");
         Util.GrantAccess(mcPath); // Make the original file writable
         Console.WriteLine($"{Console.Prefix("Patcher Debug")} Writing new bytes to mcExe");
-        File.WriteAllBytesAsync(mcExe, mcTmpHex.FromHexString()).Wait(); // Write the new contents to the temp file
+        File.WriteAllBytesAsync(mcExe, mcHex.FromHexString()).Wait(); // Write the new contents to the temp file
         Console.WriteLine($"{Console.Prefix("Patcher Debug")} Writing new version file");
         File.WriteAllText(LastMcVersionPath, CurrentMcVersion);
     }
@@ -130,54 +141,47 @@ public static class Program
         ret:
             string selection = Console.ReadKey().KeyChar.ToString().ToLower();
             Console.WriteLine();
-            if (selection == "1")
+            switch (selection)
             {
-                (int left, int top) value = Console.GetCursorPosition();
-                Console.SetCursorPosition(13, 1);
-                Console.Write("            ");
-                Console.SetCursorPosition(13, 1);
-                string? input = Console.ReadLine();
-                bool validFloat = float.TryParse(input, out float scale);
-                if (validFloat)
-                {
-                    Config.CurrentConfig.GuiScale = scale;
-                }
-            }
-            else if (selection == "2")
-            {
-                Config.CurrentConfig.AutoSprint = !Config.CurrentConfig.AutoSprint;
-            }
-            else if (selection == "3")
-            {
-                Config.CurrentConfig.FastSwing = !Config.CurrentConfig.FastSwing;
-            }
-            else if (selection == "4")
-            {
-                Config.CurrentConfig.ShowNametag = !Config.CurrentConfig.ShowNametag;
-            }
-            else if (selection == "5")
-            {
-                Config.CurrentConfig.ShowMobTag = !Config.CurrentConfig.ShowMobTag;
-            }
-            else if (selection == "6")
-            {
-                Config.SaveConfig();
-                Thread.Sleep(1000);
-            }
-            else if (selection == "7")
-            {
-                Console.SwitchToMainBuffer();
-                Config.SaveConfig();
-                Console.SwitchToMainBuffer();
-                return;
-            }
-            else
-            {
-                if (Console.CursorLeft == 0) Console.CursorTop -= 1;
-                Console.CursorLeft = 18;
-                Console.Write($"{Console.ErrorTextColor}{selection}{Console.R}");
-                Console.CursorLeft = 18;
-                goto ret;
+                case "1":
+                    (int left, int top) value = Console.GetCursorPosition();
+                    Console.SetCursorPosition(13, 1);
+                    Console.Write("            ");
+                    Console.SetCursorPosition(13, 1);
+                    string? input = Console.ReadLine();
+                    bool validFloat = float.TryParse(input, out float scale);
+                    if (validFloat)
+                    {
+                        Config.CurrentConfig.GuiScale = scale;
+                    }
+                    break;
+                case "2":
+                    Config.CurrentConfig.AutoSprint = !Config.CurrentConfig.AutoSprint;
+                    break;
+                case "3":
+                    Config.CurrentConfig.FastSwing = !Config.CurrentConfig.FastSwing;
+                    break;
+                case "4":
+                    Config.CurrentConfig.ShowNametag = !Config.CurrentConfig.ShowNametag;
+                    break;
+                case "5":
+                    Config.CurrentConfig.ShowMobTag = !Config.CurrentConfig.ShowMobTag;
+                    break;
+                case "6":
+                    Config.SaveConfig();
+                    Thread.Sleep(1000);
+                    break;
+                case "7":
+                    Console.SwitchToMainBuffer();
+                    Config.SaveConfig();
+                    Console.SwitchToMainBuffer();
+                    return;
+                default:
+                    if (Console.CursorLeft == 0) Console.CursorTop -= 1;
+                    Console.CursorLeft = 18;
+                    Console.Write($"{Console.ErrorTextColor}{selection}{Console.R}");
+                    Console.CursorLeft = 18;
+                    goto ret;
             }
         }
     }

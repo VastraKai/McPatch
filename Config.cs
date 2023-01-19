@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-
 namespace McPatch;
 public static class Config
 {
@@ -11,23 +10,24 @@ public static class Config
         public bool ShowNametag;
         public bool ShowMobTag;
     }
+
     private static string configPath = Environment.ExpandEnvironmentVariables(
                         "%localappdata%\\packages\\Microsoft.MinecraftUWP_8wekyb3d8bbwe\\roamingstate\\KaiMod_config.txt");
     // Current Config
     public static Configuration CurrentConfig = new();
     // Save Config
-    public static void SaveConfig(string location = "default")
+    public static void SaveConfig(bool hideSaveMsg = false, string location = "default")
     {
         try
         {
             if (location == "default") location = configPath;
             string json = JsonConvert.SerializeObject(CurrentConfig, Formatting.Indented);
-            System.IO.File.WriteAllText(location, json);
-            Console.WriteLine($"{Console.PrefixColor}[Config]{Console.GreenTextColor} Config saved successfully.{Console.R}");
+            File.WriteAllText(location, json);
+            if (hideSaveMsg) Console.WriteLine($"{Console.Prefix("Config")}{Console.GreenTextColor} Config saved successfully.{Console.R}");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"{Console.ErrorTextColor}[Config Error]{Console.WarningTextColor} Failed to save config: {ex.Message}{Console.R}");
+            Console.WriteLine($"{Console.ErrorPrefix("Config")}{Console.WarningTextColor} Failed to save config: {ex.Message}{Console.R}");
         }
     }
     // Load Config
@@ -36,15 +36,15 @@ public static class Config
         try
         {
             if (location == "default") location = configPath;
-            if (System.IO.File.Exists(location))
+            if (File.Exists(location))
             {
-                string json = System.IO.File.ReadAllText(location);
+                string json = File.ReadAllText(location);
                 CurrentConfig = JsonConvert.DeserializeObject<Configuration>(json);
-                Console.WriteLine($"{Console.PrefixColor}[Config]{Console.GreenTextColor} Config loaded successfully.{Console.R}");
+                Console.WriteLine($"{Console.Prefix("Config")}{Console.GreenTextColor} Config loaded successfully.{Console.R}");
             }
             else
             {
-                Console.WriteLine($"{Console.PrefixColor}[Config]{Console.WarningTextColor} Config file not found, creating a new one.{Console.R}");
+                Console.WriteLine($"{Console.WarningPrefix("Config")}{Console.WarningTextColor} Config file not found, creating a new one.{Console.R}");
                 CurrentConfig = new();
                 CurrentConfig.GuiScale = 3;
                 CurrentConfig.AutoSprint = true;
@@ -57,7 +57,7 @@ public static class Config
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"{Console.ErrorTextColor}[Config Error]{Console.WarningTextColor} Failed to load config: {ex.Message}{Console.R}");
+            Console.WriteLine($"{Console.ErrorPrefix("Config")}{Console.WarningTextColor} Failed to load config: {ex.Message}{Console.R}");
         }
         return false;
     }
@@ -67,6 +67,6 @@ public static class Config
         if (location == "default") location = configPath;
         if (System.IO.File.Exists(location))
             File.Delete(location);
-        Console.WriteLine($"{Console.PrefixColor}[Config]{Console.GreenTextColor} Config reset successfully.{Console.R}");
+        Console.WriteLine($"{Console.Prefix("Config")}{Console.GreenTextColor} Config reset successfully.{Console.R}");
     }
 }

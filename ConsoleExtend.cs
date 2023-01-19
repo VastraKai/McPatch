@@ -72,43 +72,20 @@ public static partial class Console
         return $"{ESC}[38;2;{red};{green};{blue}m";
     }
     public static string EscColor(string red, string green, string blue) => $"{ESC}[38;2;{red};{green};{blue}m";
-    public static string Cl(float r, float g, float b) => EscColor(r, g, b);
-    //public static void WriteLineF(string prefixText, string text)
-    //{
-    //    Console.WriteLine($"{PrefixColor}[{prefixText}]{GenericTextColor} {text}{R}");
-    //}
-    //public static void WriteErrorF(string prefixText, string text, string textColorStr = "default")
-    //{
-    //    if (textColorStr == "default") textColorStr = WarningTextColor;
-    //    Console.Error.WriteLine($"{ErrorTextColor}[{prefixText}]{textColorStr} {text}{R}");
-    //}
-    //public static void WriteWarningF(string prefixText, string text, string textColorStr = "default")
-    //{
-    //    if (textColorStr == "default") textColorStr = WarningTextColor;
-    //    Console.Error.WriteLine($"{WarningTextColor}[{prefixText}]{textColorStr} {text}{R}");
-    //}
 
     /// <summary>
-    /// Uses cmd's cls instead of the default Console.Clear
+    /// Uses cmd's cls instead of the default Console.Clear. This can be faster in some cases.
     /// </summary>
-    public static void ClearAlt()
-    {
-        Process.Start("cmd.exe", "/c cls").WaitForExit();
-    }
-    public static void SwitchToAlternativeBuffer()
-    {
-        Write($"{ESC}[?1049h");
-        //CursorLeft -= 8;
-        //Write("        ");
-        //CursorLeft -= 8;
-    }
-    public static void SwitchToMainBuffer()
-    {
-        Write($"{ESC}[?1049l");
-        //CursorLeft -= 8;
-        //Write("        ");
-        //CursorLeft -= 8;
-    }
+    public static void ClearAlt() => Process.Start("cmd.exe", "/c cls").WaitForExit();
+    /// <summary>
+    /// Switches to an alternative console buffer.
+    /// </summary>
+    public static void SwitchToAlternativeBuffer() => Write($"{ESC}[?1049h");
+    /// <summary>
+    /// Switches to the default console buffer.
+    /// </summary>
+    public static void SwitchToMainBuffer() => Write($"{ESC}[?1049l");
+    // i should not need to explain this...
     public static string WarningPrefix(string prefixText) => $"{PrefixColor}[{prefixText} {WarningTextColor}Warning{PrefixColor}]{R}";
     public static string ErrorPrefix(string prefixText) => $"{PrefixColor}[{prefixText} {ErrorTextColor}Error{PrefixColor}]{R}";
     public static string Prefix(string prefixText) => $"{PrefixColor}[{prefixText}]{R}";
