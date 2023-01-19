@@ -23,7 +23,7 @@ public static class Config
             if (location == "default") location = configPath;
             string json = JsonConvert.SerializeObject(CurrentConfig, Formatting.Indented);
             File.WriteAllText(location, json);
-            if (hideSaveMsg) Console.WriteLine($"{Console.Prefix("Config")}{Console.GreenTextColor} Config saved successfully.{Console.R}");
+            if (!hideSaveMsg) Console.WriteLine($"{Console.Prefix("Config")}{Console.GreenTextColor} Config saved successfully.{Console.R}");
         }
         catch (Exception ex)
         {
