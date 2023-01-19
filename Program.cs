@@ -174,7 +174,6 @@ public static class Program
                 case "7":
                     Console.SwitchToMainBuffer();
                     Config.SaveConfig();
-                    Console.SwitchToMainBuffer();
                     return;
                 default:
                     if (Console.CursorLeft == 0) Console.CursorTop -= 1;

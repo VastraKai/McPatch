@@ -51,7 +51,7 @@ public static class Config
                 CurrentConfig.FastSwing = false;
                 CurrentConfig.ShowNametag = true;
                 CurrentConfig.ShowMobTag = false;
-                SaveConfig();
+                SaveConfig(true);
                 return true;
             }
         }
