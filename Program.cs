@@ -5,6 +5,7 @@ public static class Program
 {
     static void Main(string[] args)
     {
+        Console.SetupConsole(); // lol oops
         try
         {
             if (args.Length > 0 && args[0].ToLower() == "--reset-config") Config.ResetConfig();
@@ -21,12 +22,11 @@ public static class Program
     }
     private static void Patcher()
     {
-        Console.SetupConsole();
+        
         M.Setup();
         bool newConfig = Config.LoadConfig();
         if (newConfig)
             ConfigPrompt();
-
         Console.WriteLine($"{Console.Prefix("Patcher")} Preparing...");
         string mcPath = Path.GetFullPath(Util.McProcess.MainModule.FileName).Replace("Minecraft.Windows.exe", "");
         Console.WriteLine($"{Console.Prefix("Patcher Debug")} mcPath: {mcPath}");
