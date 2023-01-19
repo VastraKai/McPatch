@@ -31,6 +31,7 @@ public static class Program
         {
             Console.Write($"{Console.Prefix("Patcher")} Edit config?");
             string key = Console.ReadKey(true).KeyChar.ToString().ToLower();
+            Console.Write("\r                           \r");
             if (key == "y")
                 ConfigPrompt();
         }
