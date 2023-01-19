@@ -93,8 +93,6 @@ public static class Program
                 {
                     case "GuiScaleAddr":
                         Fields.GuiScale = Config.CurrentConfig.GuiScale;
-                        string? newBytes1 = M.mem.ReadBytes(Address, 11).ToHexString().Replace(" ", "");
-                        mcHex.Replace(bytes, newBytes1);
                         Console.WriteLine($"{Console.Prefix("Patcher")} GuiScale has been set to {Config.CurrentConfig.GuiScale}");
                         break;
                     case "SprintAddr":
