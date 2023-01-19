@@ -29,7 +29,7 @@ public static class Fields
     {
         public static void Enable()
         {
-            if(M.mem.ReadByte(Address.FastSwingAddr).ToHexString() == "EB") 
+            if (M.mem.ReadByte(Address.FastSwingAddr).ToHexString() == "EB")
                 Console.WriteLine($"{Console.WarningPrefix("FastSwing")} FastSwing seems to already be enabled!");
             M.mem.WriteMemory(Address.FastSwingAddr, "byte", "0xEB");
             Console.WriteLine($"{Console.Prefix("FastSwing")} Enabled");
@@ -54,9 +54,10 @@ public static class Fields
             {
                 OrigNametagBytes = currentBytes;
                 M.mem.WriteMemory(Address.ShowNameAddr, "bytes", "90 90 90 90 90 90");
-            } else
+            }
+            else
             {
-                if (currentBytes == OrigNametagBytes) 
+                if (currentBytes == OrigNametagBytes)
                     Console.WriteLine($"{Console.WarningPrefix("ShowNametag")} ShowNametag seems to already be enabled!");
             }
             Console.WriteLine($"{Console.Prefix("ShowNametag")} Enabled");
@@ -65,7 +66,7 @@ public static class Fields
         public static void Disable()
         {
             byte[] currentBytes = M.mem.ReadBytes(Address.ShowNameAddr, 6);
-            if (currentBytes == OrigNametagBytes) 
+            if (currentBytes == OrigNametagBytes)
                 Console.WriteLine($"{Console.WarningPrefix("ShowNametag")} ShowNametag seems to already be disabled!");
             M.mem.WriteMemory(Address.ShowNameAddr, "bytes", OrigNametagBytes.ToHexString());
             Console.WriteLine($"{Console.Prefix("ShowNametag")} Disabled");
@@ -82,7 +83,7 @@ public static class Fields
             {
                 OrigMobtagBytes = currentBytes;
                 M.mem.WriteMemory(Address.ShowMobtagAddr, "bytes", "90 90 90 90 90 90");
-            } 
+            }
             else
             {
                 Console.WriteLine($"{Console.WarningPrefix("ShowMobtag")} ShowMobtag seems to already be enabled!");
@@ -94,7 +95,7 @@ public static class Fields
         public static void Disable()
         {
             byte[] currentBytes = M.mem.ReadBytes(Address.ShowNameAddr, 6);
-            if (currentBytes == OrigMobtagBytes) 
+            if (currentBytes == OrigMobtagBytes)
                 Console.WriteLine($"{Console.WarningPrefix("ShowMobtag")} ShowMobtag seems to already be disabled!");
             M.mem.WriteMemory(Address.ShowMobtagAddr, "bytes", OrigMobtagBytes.ToHexString());
             Config.CurrentConfig.ShowMobTag = false;

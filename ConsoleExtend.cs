@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
-using Windows.Media.Streaming.Adaptive;
 
 namespace McPatch;
 // Extended from ConsoleBase

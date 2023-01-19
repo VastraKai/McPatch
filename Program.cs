@@ -13,7 +13,8 @@ public static class Program
             Util.OpenMc();
             Console.WriteLine($"{Console.Prefix("Patcher")} Press any key to exit...");
             Console.ReadKey(true);
-        } catch(Exception ex)
+        }
+        catch (Exception ex)
         {
             Console.WriteLine($"{Console.ErrorPrefix("Patcher")} An exception was thrown (please report this): {ex}");
         }

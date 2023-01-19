@@ -30,7 +30,7 @@ public static class Util
         public IntPtr beginning;
         public IntPtr end;
     }
-    
+
     public static string McGetVersion() // gets the current Minecraft Bedrock version (this is a pain in the ass)
     {
         try
