@@ -15,7 +15,7 @@ public static class Program
             // the mc executable is like 100 megabytes it should not be that big
             GC.Collect();
             GC.WaitForPendingFinalizers();
-            Console.WriteLine($"{Console.Prefix("Patcher")} Settings applied successfully!");
+            Console.WriteLine($"{Console.Prefix("Patcher")} {Console.GreenTextColor}Settings applied successfully!{Console.R}");
             Util.OpenMc();
             Console.WriteLine($"{Console.Prefix("Patcher")} Press any key to exit...");
             Console.ReadKey(true);
@@ -33,7 +33,9 @@ public static class Program
         M.Setup(false);
 
         bool newConfig = Config.LoadConfig();
-        if (newConfig)
+        if (!Util.IsDeveloperModeEnabled())
+            ConfigPrompt();
+        else if (newConfig)
             ConfigPrompt();
         else
         {
@@ -43,7 +45,6 @@ public static class Program
             if (key == "y")
                 ConfigPrompt();
         }
-
         Console.WriteLine($"{Console.Prefix("Patcher")} Preparing...");
         string mcPath = Path.GetFullPath(Util.McProcess.MainModule.FileName).Replace("Minecraft.Windows.exe", "");
         Console.WriteLine($"{Console.Prefix("Patcher Debug")} mcPath: {mcPath}");
@@ -150,30 +151,32 @@ public static class Program
         }
         else
         {
-            Console.WriteLine($"{Console.Prefix("Patcher")} Unable to use multi-instance: Developer mode is not enabled.");
-            Console.WriteLine($"{Console.Prefix("Patcher")} Please enable developer mode in ms-settings:developers.");
+            Console.WriteLine($"{Console.ErrorPrefix("Patcher")}{Console.ErrorTextColor} Unable to use multi-instance: Developer mode is not enabled.{Console.R}");
+            Console.WriteLine($"{Console.ErrorPrefix("Patcher")}{Console.ErrorTextColor} Please enable developer mode in ms-settings:developers.{Console.R}");
         }
         Console.WriteLine($"{Console.Prefix("Patcher Debug")} Writing new version file");
         File.WriteAllText(LastMcVersionPath, CurrentMcVersion);
     }
     public static void ConfigPrompt()
     {
+        bool DevModeEnabled = Util.IsDeveloperModeEnabled();
         while (true)
         {
             Console.SwitchToAlternativeBuffer();
-            Console.WriteLine($"{Console.PrefixColor}[Configuration Menu]{Console.R}");
-            Console.WriteLine("1) GuiScale: " + Config.CurrentConfig.GuiScale);
-            Console.WriteLine("2) Always Sprint: " + (Config.CurrentConfig.AutoSprint ? "Enabled" : "Disabled"));
-            Console.WriteLine("3) Fast Swing: " + (Config.CurrentConfig.FastSwing ? "Enabled" : "Disabled"));
-            Console.WriteLine("4) Show Player Nametag: " + (Config.CurrentConfig.ShowNametag ? "Enabled" : "Disabled"));
-            Console.WriteLine("5) Show Mob Nametag: " + (Config.CurrentConfig.ShowMobTag ? "Enabled" : "Disabled"));
-            Console.WriteLine("6) Minecraft Multi-Instance: " + (Config.CurrentConfig.McMultiInstance ? "Enabled" : "Disabled"));
-            Console.WriteLine("7) Save Config");
-            Console.WriteLine("8) Exit Menu");
-            Console.Write("Select an option: ");
+            Console.WriteLine($"{Console.Prefix("Config Menu")}");
+            Console.WriteLine($"1) GuiScale: {Config.CurrentConfig.GuiScale}");
+            Console.WriteLine($"2) Always Sprint: {(Config.CurrentConfig.AutoSprint ? "Enabled" : "Disabled")}");
+            Console.WriteLine($"3) Fast Swing: {(Config.CurrentConfig.FastSwing ? "Enabled" : "Disabled")}");
+            Console.WriteLine($"4) Show Player Nametag: " + (Config.CurrentConfig.ShowNametag ? "Enabled" : "Disabled"));
+            Console.WriteLine($"5) Show Mob Nametag: " + (Config.CurrentConfig.ShowMobTag ? "Enabled" : "Disabled"));
+            if (DevModeEnabled) Console.WriteLine($"6) Minecraft Multi-Instance: " + (Config.CurrentConfig.McMultiInstance ? "Enabled" : "Disabled"));
+            else Console.WriteLine($"6) Minecraft Multi-Instance: " + (Config.CurrentConfig.McMultiInstance ? "Enabled" : "Disabled") + $" {Console.ErrorTextColor}(You must enable developer mode!){Console.R}");
+            Console.WriteLine($"7) Save Config");
+            Console.WriteLine($"8) Exit Menu");
+            Console.Write($"Select an option: {Console.ValueColor}");
         ret:
             string selection = Console.ReadKey().KeyChar.ToString().ToLower();
-            Console.WriteLine();
+            Console.WriteLine(Console.R);
             switch (selection)
             {
                 case "1":
@@ -202,6 +205,13 @@ public static class Program
                     break;
                 case "6":
                     Config.CurrentConfig.McMultiInstance = !Config.CurrentConfig.McMultiInstance;
+                    DevModeEnabled = Util.IsDeveloperModeEnabled();
+                    if (!DevModeEnabled)
+                    {
+                        Console.WriteLine($"{Console.WarningPrefix("Config Menu")} You must enable developer mode to use multi-instance. Please enable it before you continue.");
+                        Console.WriteLine($"{Console.Prefix("Config Menu")} Press enter to continue...");
+                        Console.WaitForEnter();
+                    }
                     break;
                 case "7":
                     Config.SaveConfig();
