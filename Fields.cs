@@ -27,6 +27,6 @@ public static class Fields
         public static string? GuiScale => M.mem.GetAddressFromSig(Sigs.GuiScale, 0, false, true, false).ToString("X");
         public static string? Sprint => M.mem.GetAddressFromSig(Sigs.Sprint, 4).ToString("X");
         public static string? ShowName => M.mem.GetAddressFromSig(Sigs.ShowName, 0).ToString("X");
-        public static string? ShowMobtag => M.mem.GetAddressFromSig(Sigs.AlwaysShowMobTag, 0).ToString("X");
+        public static string? AlwaysShowMobTag => M.mem.GetAddressFromSig(Sigs.AlwaysShowMobTag, 0).ToString("X");
     }
 }

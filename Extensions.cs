@@ -6,6 +6,7 @@ public static class Extensions
 {
     public static string ToHexString(this byte[] bytes)
     {
+        if(bytes == null) return string.Empty;
         return BitConverter.ToString(bytes).Replace("-", " ");
     }
     public static byte[] FromHexString(this string stro)

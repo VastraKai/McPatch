@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 
 namespace McPatch;
 public static class Program
@@ -10,12 +11,13 @@ public static class Program
         {
             if (args.Length > 0 && args[0].ToLower() == "--reset-config") Config.ResetConfig();
 
-            Patcher();
+            bool success = Patcher();
             // bruh i get up to 4 gigabytes of memory usage wtf
             // the mc executable is like 100 megabytes it should not be that big
             GC.Collect();
             GC.WaitForPendingFinalizers();
-            Console.WriteLine($"{Console.Prefix("Patcher")} {Console.GreenTextColor}Settings applied successfully!{Console.R}");
+            if(success) Console.WriteLine($"{Console.Prefix("Patcher")} {Console.GreenTextColor}Settings applied successfully!{Console.R}");
+            else Console.WriteLine($"{Console.ErrorPrefix("Patcher")} {Console.ErrorTextColor}Failed to apply settings...{Console.R}");
             Util.OpenMc();
             Console.WriteLine($"{Console.Prefix("Patcher")} Press any key to exit...");
             Console.ReadKey(true);
@@ -23,13 +25,14 @@ public static class Program
         catch (Exception ex)
         {
             Console.WriteLine($"{Console.ErrorPrefix("Patcher")} An exception was thrown (please report this): {ex}");
-            if(ex.GetType().ToString() == "System.ArgumentNullException") Console.WriteLine($"{Console.Prefix("Patcher")} Looks like an \"invalid sig\" error. Make sure your game isn't minimized then try again.");
+            if (ex.GetType().ToString() == "System.ArgumentNullException") Console.WriteLine($"{Console.Prefix("Patcher")} Looks like an \"invalid sig\" error. Make sure your game isn't minimized then try again.");
             Console.WriteLine($"{Console.Prefix("Patcher")} Press enter to exit...");
             Console.WaitForEnter();
         }
     }
-    private static void Patcher()
+    private static bool Patcher()
     {
+        bool success = true;
         M.Setup(false);
 
         bool newConfig = Config.LoadConfig();
@@ -82,9 +85,11 @@ public static class Program
         {
             string? PropertyName = property.Name;
             string? Address = property.GetValue(null).ToString();
-            if (Address == "0")
+            if (!Address.StartsWith("7F"))
             {
-                Console.WriteLine($"{Console.ErrorPrefix("Patcher")} Address for {Console.ValueColor}'{PropertyName}'{Console.R} not found, sig: {Console.ValueColor}'{typeof(Sigs).GetProperty(PropertyName)?.GetValue(null)}'{Console.R} {Console.ErrorTextColor}(Please report this!){Console.R}");
+                success = false;
+                string? sig = typeof(Sigs).GetField(PropertyName).GetValue(null).ToString();
+                Console.WriteLine($"{Console.ErrorPrefix("Patcher")} Address for {Console.ValueColor}'{PropertyName}'{Console.R} not found, sig: {Console.ValueColor}'{sig}'{Console.R} {Console.ErrorTextColor}(Please report this!){Console.R}");
             }
             else
             {
@@ -111,7 +116,7 @@ public static class Program
                         M.mem.WriteMemory(Address, "bytes", "90 90 90 90 90 90");
                         Console.WriteLine($"{Console.Prefix("Patcher")} ShowName has been enabled");
                         break;
-                    case "ShowMobtag":
+                    case "AlwaysShowMobTag":
                         if (!Config.CurrentConfig.ShowMobTag) break;
                         M.mem.WriteMemory(Address, "bytes", "90 90 90 90 90 90");
                         Console.WriteLine($"{Console.Prefix("Patcher")} ShowMobtag has been enabled");
@@ -157,6 +162,7 @@ public static class Program
         }
         Console.WriteLine($"{Console.Prefix("Patcher Debug")} Writing new version file");
         File.WriteAllText(LastMcVersionPath, CurrentMcVersion);
+        return success;
     }
     public static void ConfigPrompt()
     {
