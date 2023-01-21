@@ -91,11 +91,11 @@ public static partial class Console
     public static string Prefix(string prefixText) => $"{PrefixColor}[{prefixText}]{R}";
     public static void WaitForEnter()
     {
-        Console.CursorVisible = false;
-        Console.ForegroundColor = Console.BackgroundColor;
-        Console.ReadLine();
-        Console.ResetColor();
-        Console.CursorVisible = true;
+        ConsoleKey key = ConsoleKey.NoName;
+        while (key != ConsoleKey.Enter)
+        {
+            key = Console.ReadKey(true).Key;
+        }
     }
 
     public static string R = "\x001B[0m";
