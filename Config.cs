@@ -12,10 +12,14 @@ public static class Config
         public bool McMultiInstance;
     }
 
-    private static string configPath = Environment.ExpandEnvironmentVariables(
+    private static readonly string configPath = Environment.ExpandEnvironmentVariables(
                         "%localappdata%\\packages\\Microsoft.MinecraftUWP_8wekyb3d8bbwe\\roamingstate\\KaiMod_config.txt");
     // Current Config
-    public static Configuration CurrentConfig = new();
+    private static Configuration? currentConfig = new();
+    // just so i can have 0 messages lol
+    public static Configuration? CurrentConfig { get => currentConfig; set => currentConfig = value; }
+    
+
     // Save Config
     public static void SaveConfig(bool hideSaveMsg = false, string location = "default")
     {
@@ -46,13 +50,15 @@ public static class Config
             else
             {
                 Console.WriteLine($"{Console.WarningPrefix("Config")}{Console.WarningTextColor} Config file not found, creating a new one.{Console.R}");
-                CurrentConfig = new();
-                CurrentConfig.GuiScale = 3;
-                CurrentConfig.AutoSprint = true;
-                CurrentConfig.FastSwing = false;
-                CurrentConfig.ShowNametag = true;
-                CurrentConfig.ShowMobTag = false;
-                CurrentConfig.McMultiInstance = false;
+                CurrentConfig = new()
+                {
+                    GuiScale = 3,
+                    AutoSprint = true,
+                    FastSwing = false,
+                    ShowNametag = true,
+                    ShowMobTag = false,
+                    McMultiInstance = false
+                };
                 SaveConfig(true);
                 return true;
             }

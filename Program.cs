@@ -77,14 +77,14 @@ public static class Program
 
         string mcHex = File.ReadAllBytes(mcExe).ToHexString().Replace(" ", "");
         Console.WriteLine($"{Console.Prefix("Patcher")} Applying settings...");
-
+        int i = 0;
         foreach (PropertyInfo property in typeof(Fields.Address).GetProperties())
         {
             string? PropertyName = property.Name;
             string? Address = property.GetValue(null).ToString();
             if (Address == "0")
             {
-                Console.WriteLine($"{Console.ErrorPrefix("Patcher")} Unable to find address for {PropertyName}, skipping... (dead sig?)");
+                Console.WriteLine($"{Console.ErrorPrefix("Patcher")} Address for {Console.ValueColor}'{PropertyName}'{Console.R} not found, sig: {Console.ValueColor}'{typeof(Sigs).GetProperty(PropertyName)?.GetValue(null)}'{Console.R} {Console.ErrorTextColor}(Please report this!){Console.R}");
             }
             else
             {
@@ -92,26 +92,26 @@ public static class Program
                 Console.WriteLine($"{Console.Prefix("Patcher Debug")} Field Info for {PropertyName}: {Address}:{M.mem.ReadBytes(Address, 11).ToHexString()}");
                 switch (PropertyName)
                 {
-                    case "GuiScaleAddr":
+                    case "GuiScale":
                         Fields.GuiScale = Config.CurrentConfig.GuiScale;
                         Console.WriteLine($"{Console.Prefix("Patcher")} GuiScale has been set to {Config.CurrentConfig.GuiScale}");
                         break;
-                    case "SprintAddr":
+                    case "Sprint":
                         if (!Config.CurrentConfig.AutoSprint) break;
                         M.mem.WriteMemory(Address, "bytes", "49 8B C5 90");
                         Console.WriteLine($"{Console.Prefix("Patcher")} SprintAddr has been enabled");
                         break;
-                    case "FastSwingAddr":
+                    case "FastSwing":
                         if (!Config.CurrentConfig.FastSwing) break;
                         M.mem.WriteMemory(Address, "byte", "EB");
                         Console.WriteLine($"{Console.Prefix("Patcher")} FastSwing has been enabled");
                         break;
-                    case "ShowNameAddr":
+                    case "ShowName":
                         if (!Config.CurrentConfig.ShowNametag) break;
                         M.mem.WriteMemory(Address, "bytes", "90 90 90 90 90 90");
                         Console.WriteLine($"{Console.Prefix("Patcher")} ShowName has been enabled");
                         break;
-                    case "ShowMobtagAddr":
+                    case "ShowMobtag":
                         if (!Config.CurrentConfig.ShowMobTag) break;
                         M.mem.WriteMemory(Address, "bytes", "90 90 90 90 90 90");
                         Console.WriteLine($"{Console.Prefix("Patcher")} ShowMobtag has been enabled");
@@ -123,6 +123,7 @@ public static class Program
                 string? newBytes = M.mem.ReadBytes(Address, 11).ToHexString().Replace(" ", "");
                 mcHex = mcHex.Replace(bytes, newBytes);
             }
+            i++;
         }
 
         Console.WriteLine($"{Console.Prefix("Patcher Debug")} Killing Minecraft");
