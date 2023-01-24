@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using Windows.ApplicationModel;
@@ -9,23 +8,6 @@ using Windows.Management.Deployment;
 namespace McPatch;
 public static class Util
 {
-    
-    [DllImport("user32.dll")]
-    private static extern IntPtr SetForegroundWindow(IntPtr hWnd);
-
-    [DllImport("user32.dll")]
-    private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-
-    public static void FocusProcess(string procName)
-    {
-        foreach (var pr in Process.GetProcesses())
-        {
-            if (pr.ProcessName != procName) continue;
-            var hWnd = pr.MainWindowHandle;
-            ShowWindow(hWnd, 3);
-            SetForegroundWindow(hWnd);
-        }
-    }
     /// <summary>
     /// Structure for getModuleInMemory
     /// </summary>
@@ -39,7 +21,7 @@ public static class Util
     {
         try
         {
-            string version = "Unknown";
+            string? version = "Unknown";
             string path = Environment.ExpandEnvironmentVariables("%systemroot%");
             var proc = new Process
             {
@@ -55,7 +37,7 @@ public static class Util
             proc.Start();
             while (!proc.StandardOutput.EndOfStream)
             {
-                string line = proc.StandardOutput.ReadLine();
+                string? line = proc.StandardOutput.ReadLine();
                 version = line;
             }
             version ??= "Unknown";
@@ -124,14 +106,18 @@ public static class Util
         DirectorySecurity dSecurity = dInfo.GetAccessControl();
         // Set the owner of the directory
         dSecurity.SetOwner(new NTAccount(Environment.UserName));
-        dSecurity.AddAccessRule(new FileSystemAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null), FileSystemRights.FullControl, InheritanceFlags.ObjectInherit | InheritanceFlags.ContainerInherit, PropagationFlags.NoPropagateInherit, AccessControlType.Allow));
+        dSecurity.SetAccessRuleProtection(true, false);
+        dSecurity.AddAccessRule(new FileSystemAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null), FileSystemRights.FullControl, InheritanceFlags.ObjectInherit | InheritanceFlags.ContainerInherit, PropagationFlags.None, AccessControlType.Allow));
+        dSecurity.AddAccessRule(new FileSystemAccessRule(new SecurityIdentifier("S-1-15-2-1"), FileSystemRights.FullControl, InheritanceFlags.ObjectInherit | InheritanceFlags.ContainerInherit, PropagationFlags.None, AccessControlType.Allow));
         dInfo.SetAccessControl(dSecurity);
     }
-    public static bool IsProcOpen(string process)
+    public static bool IsProcOpen(string processName)
     {
         try
         {
-            string proc = Process.GetProcessesByName(process).FirstOrDefault().ProcessName;
+            Process? process = Process.GetProcessesByName(processName).FirstOrDefault();
+            if (process == null) throw new NullReferenceException("Process is null");
+            string proc = process.ProcessName;
             return true;
         }
         catch (Exception)
@@ -197,11 +183,11 @@ public static class Util
         if (!pkg.IsDevelopmentMode)
         {
             BackupMinecraftDataForRemoval(packageFamily);
-            new PackageManager().RemovePackageAsync(pkg.Id.FullName, 0).AsTask().Wait();
+            await new PackageManager().RemovePackageAsync(pkg.Id.FullName, 0).AsTask();
         }
         else
         {
-            new PackageManager().RemovePackageAsync(pkg.Id.FullName, RemovalOptions.PreserveApplicationData).AsTask().Wait();
+            await new PackageManager().RemovePackageAsync(pkg.Id.FullName, RemovalOptions.PreserveApplicationData).AsTask();
         }
     }
 

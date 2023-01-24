@@ -5,23 +5,22 @@ public static class Fields
     {
         get
         {
-            return M.mem.ReadFloat(Address.GuiScale, "float");
+            return M.Mem.ReadFloat(Address.GuiScale, "float");
         }
         set
         {
             Config.CurrentConfig.GuiScale = value;
-            M.mem.WriteMemory(Address.GuiScale, "float", value.ToString());
-            Console.WriteLine($"{Console.Prefix("GuiScale")} Set to {value}");
+            M.Mem.WriteMemory(Address.GuiScale, "float", value.ToString());
         }
     }
     public static class Address
     {
-        public static string? FastSwing => M.mem.GetAddressFromSig(Sigs.FastSwing, 1).ToString("X");
-        public static string? GuiScale => M.mem.GetAddressFromSig(Sigs.GuiScale, 0, false, true, false).ToString("X");
-        public static string? Sprint => M.mem.GetAddressFromSig(Sigs.Sprint, 4).ToString("X");
-        public static string? ShowName => M.mem.GetAddressFromSig(Sigs.ShowName, 0).ToString("X");
-        public static string? AlwaysShowMobTag => M.mem.GetAddressFromSig(Sigs.AlwaysShowMobTag, 0).ToString("X");
-        public static string? ForceShowCoordinates => M.mem.GetAddressFromSig(Sigs.ForceShowCoordinates, 0xC).ToString("X");
+        public static string? FastSwing => M.Mem.GetAddressFromSig(Sigs.FastSwing, 1).ToString("X");
+        public static string? GuiScale => M.Mem.GetAddressFromSig(Sigs.GuiScale, 0, false, true, false).ToString("X");
+        public static string? Sprint => M.Mem.GetAddressFromSig(Sigs.Sprint, 4).ToString("X");
+        public static string? ShowName => M.Mem.GetAddressFromSig(Sigs.ShowName, 0).ToString("X");
+        public static string? AlwaysShowMobTag => M.Mem.GetAddressFromSig(Sigs.AlwaysShowMobTag, 0).ToString("X");
+        public static string? ForceShowCoordinates => M.Mem.GetAddressFromSig(Sigs.ForceShowCoordinates, 0xC).ToString("X");
     }
     public static class ReplaceBytes
     {

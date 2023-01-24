@@ -1,15 +1,11 @@
-﻿using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
-using Windows.AI.MachineLearning;
-
-namespace McPatch;
+﻿namespace McPatch;
 public static class Program
 {
     static void Main(string[] args)
     {
         Console.SetupConsole();
         if (args.Length > 0 && args[0].ToLower() == "--reset-config") Config.ResetConfig();
-        M.Setup(false);
+
         bool newConfig = Config.LoadConfig();
         if (!Util.IsDeveloperModeEnabled())
             ConfigPrompt();
@@ -33,13 +29,12 @@ public static class Program
                 }
             }
         }
-        Thread patchThread = new Thread(() =>
+        Thread patchThread = new(() =>
         {
             try
             {
                 bool success = Patcher.Patch();
-                // bruh i get up to 4 gigabytes of memory usage wtf
-                // the mc executable is like 100 megabytes it should not be that big
+                // memory usage is only up to like 500 now :D
                 if (success) Console.WriteLine($"{Console.Prefix("Patcher")} {Console.GreenTextColor}Settings applied successfully!{Console.R}");
                 else Console.WriteLine($"{Console.ErrorPrefix("Patcher")} {Console.ErrorTextColor}Failed to apply settings...{Console.R}");
             }
@@ -48,15 +43,17 @@ public static class Program
                 Console.WriteLine($"{Console.ErrorPrefix("Patcher")} An exception was thrown (please report this): {ex}");
                 if (ex.GetType().ToString() == "System.ArgumentNullException") Console.WriteLine($"{Console.Prefix("Patcher")} Looks like an \"invalid sig\" error. Make sure your game isn't minimized then try again.");
             }
-        });
-        patchThread.IsBackground = true; 
+        })
+        {
+            IsBackground = true
+        };
         patchThread.Start();
         patchThread.Join();
 
-        GC.WaitForPendingFinalizers(); 
+        GC.WaitForPendingFinalizers();
         GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true, true);
-        
-        
+        GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true, true);
+
         Util.OpenMc();
         Console.WriteLine($"{Console.Prefix("Patcher")} Press enter to exit...");
         Console.WaitForEnter();
@@ -89,11 +86,11 @@ public static class Program
             switch (selection)
             {
                 case "1":
-                    (int left, int top) value = Console.GetCursorPosition();
                     Console.SetCursorPosition(13, 1);
-                    Console.Write("            ");
+                    Console.Write($"{Console.ValueColor}            ");
                     Console.SetCursorPosition(13, 1);
                     string? input = Console.ReadLine();
+                    Console.Write(Console.R);
                     bool validFloat = float.TryParse(input, out float scale);
                     if (validFloat)
                     {

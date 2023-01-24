@@ -6,16 +6,26 @@ public static class Extensions
 {
     public static string ToHexString(this byte[] bytes)
     {
-        if(bytes == null) return string.Empty;
+        if (bytes == null) return string.Empty;
         return BitConverter.ToString(bytes).Replace("-", " ");
     }
-    public static byte[] FromHexString(this string stro)
+    public static string ToHexStringO(this byte[] bytes)
     {
-        string str = stro.FilterString("abcdefABCDEF1234567890");
-        var bytes = new byte[str.Length / 2];
-        for (var i = 0; i < bytes.Length; i++)
+        if (bytes == null) return string.Empty;
+        StringBuilder sb = new(bytes.Length * 2);
+        foreach (byte b in bytes)
         {
-            bytes[i] = byte.Parse(str.Substring(i * 2, 2), NumberStyles.HexNumber);
+            sb.AppendFormat("{0:x2}", b);
+        }
+        return sb.ToString();
+    }
+
+    public static byte[] FromHexString(this string str)
+    {
+        byte[] bytes = new byte[str.Length / 2];
+        for (int i = 0; i < str.Length; i += 2)
+        {
+            bytes[i / 2] = byte.Parse(str.Substring(i, 2), NumberStyles.HexNumber);
         }
         return bytes;
     }

@@ -16,10 +16,10 @@ public static class Config
     private static readonly string configPath = Environment.ExpandEnvironmentVariables(
                         "%localappdata%\\packages\\Microsoft.MinecraftUWP_8wekyb3d8bbwe\\roamingstate\\KaiMod_config.txt");
     // Current Config
-    private static Configuration? currentConfig = new();
+    private static Configuration currentConfig = new();
     // just so i can have 0 messages lol
-    public static Configuration? CurrentConfig { get => currentConfig; set => currentConfig = value; }
-    
+    public static Configuration CurrentConfig { get => currentConfig; set => currentConfig = value; }
+
 
     // Save Config
     public static void SaveConfig(bool hideSaveMsg = false, string location = "default")
@@ -45,14 +45,17 @@ public static class Config
             if (File.Exists(location))
             {
                 string json = File.ReadAllText(location);
-                CurrentConfig = JsonConvert.DeserializeObject<Configuration>(json);
+                Configuration? config = JsonConvert.DeserializeObject<Configuration>(json);
+                if (config == null) throw new NullReferenceException("Config was null");
+                CurrentConfig = config;
+                if (CurrentConfig == null) throw new Exception("Config is null");
                 if (CurrentConfig.ForceShowCoordinates && !CurrentConfig.ForceShowCoordinates)
                 {
                     CurrentConfig.ForceShowCoordinates = false;
                     SaveConfig(true);
                 }
                 Console.WriteLine($"{Console.Prefix("Config")}{Console.GreenTextColor} Config loaded successfully.{Console.R}");
-                
+
             }
             else
             {

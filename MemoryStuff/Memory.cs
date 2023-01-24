@@ -3,20 +3,32 @@
 namespace McPatch;
 public static class M
 {
-    public static Mem mem = new();
+
+    private static Mem MemI = new();
+
+    public static Mem Mem { get => MemI; set => MemI = value; }
+
+    //public static bool MemSetup = false;
     public static void Setup(bool waitForMcLoad)
     {
-        mem = new Mem();
+        //MemSetup = true;
+        Mem = new Mem();
         if (!Util.IsProcOpen("Minecraft.Windows")) Util.OpenMc();
         while (!Util.IsProcOpen("Minecraft.Windows")) { }
         if (waitForMcLoad) ClientUtils.WaitForMC();
-        mem.OpenProcess("Minecraft.Windows");
+        Mem.OpenProcess("Minecraft.Windows");
         Console.WriteLine($"{Console.PrefixColor}[Memory]{Console.GreenTextColor} Initialized successfully.{Console.R}");
     }
     public static void Dispose()
     {
-        Util.McProcess.Kill();
-        M.mem.CloseProcess();
-        GC.Collect();
+        try
+        {
+            //MemSetup = false;
+            Util.McProcess?.Kill();
+            M.Mem.CloseProcess();
+            GC.WaitForPendingFinalizers();
+            GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true, true);
+        }
+        catch { }
     }
 }
