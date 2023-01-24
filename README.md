@@ -1,7 +1,8 @@
 # McPatch
 #### Patches Minecraft's executable to include certain byte-patches. 
 
-![image](https://user-images.githubusercontent.com/95504366/214357933-8c89cb72-75d8-4dd1-b196-b7558b727a09.png)
+![image](https://user-images.githubusercontent.com/95504366/214441437-87841050-bc1d-4778-86c7-8f22743b63b4.png)
+![image](https://user-images.githubusercontent.com/95504366/214441391-cd788544-4750-4aa8-8d02-958f0222b7cf.png)
 # Want to contribute?
 If you would like to contribute, you can fork the repository, edit the code, then submit a pull request.
 
