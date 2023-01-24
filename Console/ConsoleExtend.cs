@@ -89,6 +89,7 @@ public static partial class Console
     public static string WarningPrefix(string prefixText) => $"{PrefixColor}[{prefixText} {WarningTextColor}Warning{PrefixColor}]{R}";
     public static string ErrorPrefix(string prefixText) => $"{PrefixColor}[{prefixText} {ErrorTextColor}Error{PrefixColor}]{R}";
     public static string Prefix(string prefixText) => $"{PrefixColor}[{prefixText}]{R}";
+    public static string Value(string valueText) => $"{ValueColor}{valueText}{R}";
     public static void WaitForEnter()
     {
         ConsoleKey key = ConsoleKey.NoName;

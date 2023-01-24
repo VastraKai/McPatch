@@ -19,6 +19,10 @@ public static class Extensions
         }
         return bytes;
     }
+    public static string NS(this string str)
+    {
+        return str.Replace(" ", "");
+    }
     public static string ToHexString(this byte b)
     {
         return BitConverter.ToString(new byte[1] { b }).Replace("-", " ");

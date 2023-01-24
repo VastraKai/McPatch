@@ -9,6 +9,7 @@ public static class Config
         public bool FastSwing;
         public bool ShowNametag;
         public bool ShowMobTag;
+        public bool ForceShowCoordinates;
         public bool McMultiInstance;
     }
 
@@ -45,7 +46,13 @@ public static class Config
             {
                 string json = File.ReadAllText(location);
                 CurrentConfig = JsonConvert.DeserializeObject<Configuration>(json);
+                if (CurrentConfig.ForceShowCoordinates && !CurrentConfig.ForceShowCoordinates)
+                {
+                    CurrentConfig.ForceShowCoordinates = false;
+                    SaveConfig(true);
+                }
                 Console.WriteLine($"{Console.Prefix("Config")}{Console.GreenTextColor} Config loaded successfully.{Console.R}");
+                
             }
             else
             {
@@ -57,6 +64,7 @@ public static class Config
                     FastSwing = false,
                     ShowNametag = true,
                     ShowMobTag = false,
+                    ForceShowCoordinates = true,
                     McMultiInstance = false
                 };
                 SaveConfig(true);

@@ -9,6 +9,7 @@ using Windows.Management.Deployment;
 namespace McPatch;
 public static class Util
 {
+    
     [DllImport("user32.dll")]
     private static extern IntPtr SetForegroundWindow(IntPtr hWnd);
 

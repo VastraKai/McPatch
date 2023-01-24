@@ -9,9 +9,11 @@ If you would like to contribute, you can fork the repository, edit the code, the
 
 ### Show Player Nametag 
 - Shows the local player nametag in third-person.
-### Force Always Show Nametag
+### Force Always Show Nametags
 - Forces Minecraft to show nametags regardless of NBT values.
 - Might make nametag glitchy when sneaking.
+### Force Show Coordinates
+- Forces Minecraft to show player coords, regardless of ShowCoordinates gamerule.
 ### Custom Gui Scale
 - Overrides Minecraft's Gui Scale.
 ### Always Sprint 
