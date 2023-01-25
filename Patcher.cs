@@ -78,8 +78,9 @@ public static class Patcher
         Console.WriteLine($"{Console.Prefix("Patcher Debug")} mcExe: {Console.Value(mcExe)}");
         Console.WriteLine($"{Console.Prefix("Patcher Debug")} mcExeBak: {Console.Value(mcExeBak)}");
         DoBackupStuff();
-        Console.WriteLine($"{Console.Prefix("Patcher")} Applying settings...");
+
         string mcHex = File.ReadAllBytes(mcExe).ToHexStringO();
+        Console.WriteLine($"{Console.Prefix("Patcher")} Applying settings...");
         int i = 0;
         foreach (PropertyInfo property in typeof(Fields.Address).GetProperties())
         {
@@ -103,7 +104,7 @@ public static class Patcher
             }
             else
             {
-                string? bytes = M.Mem.ReadBytes(Address, 11).ToHexString().Replace(" ", "");
+                string? bytes = M.Mem.ReadBytes(Address, 11).ToHexStringO();
                 Console.WriteLine($"{Console.Prefix("Patcher Debug")} Field Info for {Console.Value($"'{PropertyName}'")}: {Console.Value($"'{Address}'")}:{Console.Value($"'{M.Mem.ReadBytes(Address, 11).ToHexString()}'")} ");
                 switch (PropertyName)
                 {
@@ -140,7 +141,7 @@ public static class Patcher
                         Console.WriteLine($"{Console.WarningPrefix("Patcher")} Case for property " + PropertyName + " not found!");
                         break;
                 }
-                string? newBytes = M.Mem.ReadBytes(Address, 11).ToHexString().Replace(" ", "");
+                string? newBytes = M.Mem.ReadBytes(Address, 11).ToHexStringO();
                 mcHex = mcHex.Replace(bytes, newBytes);
             }
             i++;
@@ -151,8 +152,9 @@ public static class Patcher
         Console.WriteLine($"{Console.Prefix("Patcher Debug")} Setting access permissions for path {Console.Value(mcPath)}");
         Util.GrantAccess(mcPath);
         Console.WriteLine($"{Console.Prefix("Patcher Debug")} Writing new bytes to EXE");
-        File.WriteAllBytesAsync(mcExe, mcHex.FromHexString()).Wait();
+        FileUtils.WriteFile(mcExe, mcHex.FromHexStringO());
         MultiInstancePatch();
+
         File.WriteAllText(LastMcVersionPath, CurrentMcVersion);
         return success;
     }
