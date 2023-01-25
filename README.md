@@ -20,7 +20,7 @@ If you would like to contribute, you can fork the repository, edit the code, the
 ### Always Sprint 
 - Automatically sprints for you.
 ### Cancel Swing Animation 
-- Removes the delay where you can't swing. 
+- Makes the swing animation play instantly regardless if it's already playing
 ### Multi Instance 
 - Forces Minecraft to support multiple instances by modding the AppxManifest.
 
