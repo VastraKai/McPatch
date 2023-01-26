@@ -1,4 +1,5 @@
 # McPatch
+### Warning - McPatch currently only works if you use an MC launcher, such as <a href="https://github.com/MCMrARM/mc-w10-version-launcher/releases/latest">this one</a>
 #### Patches Minecraft's executable to include certain byte-patches. 
 
 ![image](https://user-images.githubusercontent.com/95504366/214441437-87841050-bc1d-4778-86c7-8f22743b63b4.png)
