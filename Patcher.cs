@@ -25,8 +25,8 @@ public static class Patcher
     public static void BackupRestore()
     {
         Console.WriteLine($"{Console.Prefix("Patcher")} {Console.Value("Restoring from backup...")}");
-        Console.WriteLine($"{Console.Prefix("Patcher Debug")} Setting access permissions for path {Console.Value(mcPath)}");
-        Util.GrantAccess(mcPath);
+        //Console.WriteLine($"{Console.Prefix("Patcher Debug")} Setting access permissions for path {Console.Value(mcPath)}");
+        //Util.GrantAccess(mcPath);
         M.Dispose();
         while (Util.IsProcOpen("Minecraft.Windows")) { }
         Console.Write($"{Console.Prefix("Patcher Debug")} Restoring...\r");
@@ -77,6 +77,8 @@ public static class Patcher
         Console.WriteLine($"{Console.Prefix("Patcher Debug")} mcPath: {Console.Value(mcPath)}");
         Console.WriteLine($"{Console.Prefix("Patcher Debug")} mcExe: {Console.Value(mcExe)}");
         Console.WriteLine($"{Console.Prefix("Patcher Debug")} mcExeBak: {Console.Value(mcExeBak)}");
+        Console.WriteLine($"{Console.Prefix("Patcher Debug")} Setting access permissions for path {Console.Value(mcPath)}");
+        Util.GrantAccess(mcPath);
         DoBackupStuff();
 
         string mcHex = File.ReadAllBytes(mcExe).ToHexStringO();
@@ -149,8 +151,8 @@ public static class Patcher
 
         Console.WriteLine($"{Console.Prefix("Patcher Debug")} Killing Minecraft");
         M.Dispose();
-        Console.WriteLine($"{Console.Prefix("Patcher Debug")} Setting access permissions for path {Console.Value(mcPath)}");
-        Util.GrantAccess(mcPath);
+        //Console.WriteLine($"{Console.Prefix("Patcher Debug")} Setting access permissions for path {Console.Value(mcPath)}");
+        //Util.GrantAccess(mcPath);
         Console.WriteLine($"{Console.Prefix("Patcher Debug")} Writing new bytes to EXE");
         FileUtils.WriteFile(mcExe, mcHex.FromHexStringO());
         MultiInstancePatch();
