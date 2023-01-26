@@ -16,7 +16,40 @@ public static class Util
         public IntPtr beginning;
         public IntPtr end;
     }
-
+    public static bool IsAppxInstalled(string Package)
+    {
+        bool isInstalled = true;
+        // powershell.exe Get-AppPackage Microsoft.XboxApp ^| select -expandproperty Name
+        try
+        {
+            string? pkgOutput = "";
+            string path = Environment.ExpandEnvironmentVariables("%systemroot%");
+            var proc = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = path + "\\system32\\cmd.exe",
+                    Arguments = $"/c powershell.exe Get-AppPackage {Package} ^| select -expandproperty Name",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    CreateNoWindow = true
+                }
+            };
+            proc.Start();
+            while (!proc.StandardOutput.EndOfStream)
+            {
+                string? line = proc.StandardOutput.ReadLine();
+                pkgOutput = line;
+            }
+            pkgOutput ??= "";
+            if (pkgOutput.Trim().Replace(" ", "") == "") isInstalled = false;
+            return isInstalled;
+        }
+        catch
+        {
+            return false;
+        }
+    }
     public static string McGetVersion() // gets the current Minecraft Bedrock version (this is a pain in the ass)
     {
         try

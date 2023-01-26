@@ -29,11 +29,12 @@ public static class Program
                 }
             }
         }
+        bool success = false;
         Thread patchThread = new(() =>
         {
             try
             {
-                bool success = Patcher.Patch();
+                success = Patcher.Patch();
                 // memory usage is only up to like 500 now :D
                 if (success) Console.WriteLine($"{Console.Prefix("Patcher")} {Console.GreenTextColor}Settings applied successfully!{Console.R}");
                 else Console.WriteLine($"{Console.ErrorPrefix("Patcher")} {Console.ErrorTextColor}Failed to apply settings...{Console.R}");
@@ -54,7 +55,7 @@ public static class Program
         GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true, true);
         GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true, true);
 
-        Util.OpenMc();
+        if(success) Util.OpenMc();
         Console.WriteLine($"{Console.Prefix("Patcher")} Press enter to exit...");
         Console.WaitForEnter();
     }

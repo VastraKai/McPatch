@@ -71,12 +71,23 @@ public static class Patcher
     public static bool Patch()
     {
         bool success = true;
-        M.Setup(false);
+
         Console.WriteLine($"{Console.Prefix("Patcher")} Preparing...");
+        if (!Util.IsAppxInstalled("Microsoft.Minecraft*"))
+        {
+            Console.WriteLine($"{Console.ErrorPrefix("Patcher")} Minecraft is not installed! Please install Minecraft using McLauncher then try again.");
+            return false;
+        }
+        M.Setup(false);
         GetMcStuff();
         Console.WriteLine($"{Console.Prefix("Patcher Debug")} mcPath: {Console.Value(mcPath)}");
         Console.WriteLine($"{Console.Prefix("Patcher Debug")} mcExe: {Console.Value(mcExe)}");
         Console.WriteLine($"{Console.Prefix("Patcher Debug")} mcExeBak: {Console.Value(mcExeBak)}");
+        if (mcPath.Contains("Program Files\\WindowsApps\\Microsoft.Minecraft", StringComparison.CurrentCultureIgnoreCase)) {
+            Console.WriteLine($"{Console.ErrorPrefix("Patcher")} The default Minecraft directory is not writable.");
+            Console.WriteLine($"{Console.ErrorPrefix("Patcher")} View https://github.com/VastraKai/McPatch/commit/458c104322c4a22ab20cd2a57ad2a3309776eb84 for more info.");
+            return false;
+        }
         Console.WriteLine($"{Console.Prefix("Patcher Debug")} Setting access permissions for path {Console.Value(mcPath)}");
         Util.GrantAccess(mcPath);
         DoBackupStuff();
