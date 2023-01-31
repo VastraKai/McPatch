@@ -84,17 +84,30 @@ public class MemObject
         {
             
             string type = ConfigField.FieldType.ToString();
-            
-            if (type == "System.Int32") type = "int";
-            else if (type == "System.Int64") type = "long";
-            else if (type == "System.Single") type = "float";
-            else if (type == "System.Double") type = "double";
-            else if (type == "System.String") type = "string";
-            else if (type == "System.Byte") type = "byte";
-            else
+
+            switch (type)
             {
-                Console.WriteLine($"{Console.ErrorPrefix("Patcher")} Property {Console.Value($"'{PropertyName}'")} has an unsupported type");
-                return false;
+                case "System.Int32":
+                    type = "int";
+                    break;
+                case "System.Int64":
+                    type = "long";
+                    break;
+                case "System.Single":
+                    type = "float";
+                    break;
+                case "System.Double":
+                    type = "double";
+                    break;
+                case "System.String":
+                    type = "string";
+                    break;
+                case "System.Byte":
+                    type = "byte";
+                    break;
+                default:
+                    Console.WriteLine($"{Console.ErrorPrefix("Patcher")} Property {Console.Value($"'{PropertyName}'")} has an unsupported type");
+                    return false;
             }
             bool written = M.Mem.WriteMemory(Address.ToString("X"), type, $"{FieldValue}");
             if (!written) Debug.WriteLine($"Memory not written, Address: '{Address:X}', sig: '{Sig}'(+{SigOffset})");
