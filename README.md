@@ -3,7 +3,7 @@
 #### Patches Minecraft's executable to include certain byte-patches. 
 
 ![image](https://user-images.githubusercontent.com/95504366/215901737-a00e5227-cff2-47a0-830b-a73e7d1fac10.png)
-![image](https://user-images.githubusercontent.com/95504366/215902412-e90e13b8-bbaa-40c3-8557-8f68f3f00644.png)
+![image](https://user-images.githubusercontent.com/95504366/215904512-ae694ce8-40dc-4016-b0bc-e75b42726285.png)
 # Want to contribute?
 If you would like to contribute, you can fork the repository, edit the code, then submit a pull request.
 
