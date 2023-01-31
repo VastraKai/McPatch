@@ -68,12 +68,11 @@ public static class Program
             Console.WriteLine($"{Console.Prefix("Config Menu")}");
             string EnabledText = $"{Console.GreenTextColor}Enabled{Console.R}";
             string DisabledText = $"{Console.ErrorTextColor}Disabled{Console.R}";
-
-            Console.WriteLine($"1) GuiScale: {Console.Value((Config.CurrentConfig.GuiScale.ToString()))}");
-            Console.WriteLine($"2) Always Sprint: {(Config.CurrentConfig.AutoSprint ? EnabledText : DisabledText)}");
-            Console.WriteLine($"3) Fast Swing: {(Config.CurrentConfig.FastSwing ? EnabledText : DisabledText)}");
-            Console.WriteLine($"4) Show Player Nametag: {(Config.CurrentConfig.ShowNametag ? EnabledText : DisabledText)}");
-            Console.WriteLine($"5) Show Mob Nametag: {(Config.CurrentConfig.ShowMobTag ? EnabledText : DisabledText)}");
+            Console.WriteLine($"1) Gui Scale: {Console.Value((Config.CurrentConfig.GuiScale.ToString()))}");
+            Console.WriteLine($"2) Always Sprint: {(Config.CurrentConfig.AlwaysSprint ? EnabledText : DisabledText)}");
+            Console.WriteLine($"3) Cancel Swing: {(Config.CurrentConfig.CancelSwing ? EnabledText : DisabledText)}");
+            Console.WriteLine($"4) Show Player Nametag: {(Config.CurrentConfig.ShowPlayerNametag ? EnabledText : DisabledText)}");
+            Console.WriteLine($"5) Force Show Nametags: {(Config.CurrentConfig.ForceShowNametags ? EnabledText : DisabledText)}");
             Console.WriteLine($"6) Force Show Coordinates: {(Config.CurrentConfig.ForceShowCoordinates ? EnabledText : DisabledText)}");
             Console.Write($"7) Minecraft Multi-Instance: {(Config.CurrentConfig.McMultiInstance ? EnabledText : DisabledText)}");
             if (!DevModeEnabled) Console.Write($" {Console.ErrorTextColor}(You must enable developer mode!){Console.R}");
@@ -87,9 +86,9 @@ public static class Program
             switch (selection)
             {
                 case "1":
-                    Console.SetCursorPosition(13, 1);
+                    Console.SetCursorPosition(14, 1);
                     Console.Write($"{Console.ValueColor}            ");
-                    Console.SetCursorPosition(13, 1);
+                    Console.SetCursorPosition(14, 1);
                     string? input = Console.ReadLine();
                     Console.Write(Console.R);
                     bool validFloat = float.TryParse(input, out float scale);
@@ -99,16 +98,16 @@ public static class Program
                     }
                     break;
                 case "2":
-                    Config.CurrentConfig.AutoSprint = !Config.CurrentConfig.AutoSprint;
+                    Config.CurrentConfig.AlwaysSprint = !Config.CurrentConfig.AlwaysSprint;
                     break;
                 case "3":
-                    Config.CurrentConfig.FastSwing = !Config.CurrentConfig.FastSwing;
+                    Config.CurrentConfig.CancelSwing = !Config.CurrentConfig.CancelSwing;
                     break;
                 case "4":
-                    Config.CurrentConfig.ShowNametag = !Config.CurrentConfig.ShowNametag;
+                    Config.CurrentConfig.ShowPlayerNametag = !Config.CurrentConfig.ShowPlayerNametag;
                     break;
                 case "5":
-                    Config.CurrentConfig.ShowMobTag = !Config.CurrentConfig.ShowMobTag;
+                    Config.CurrentConfig.ForceShowNametags = !Config.CurrentConfig.ForceShowNametags;
                     break;
                 case "6":
                     Config.CurrentConfig.ForceShowCoordinates = !Config.CurrentConfig.ForceShowCoordinates;

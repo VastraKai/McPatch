@@ -94,76 +94,17 @@ public static class Patcher
 
         string mcHex = File.ReadAllBytes(mcExe).ToHexStringO();
         Console.WriteLine($"{Console.Prefix("Patcher")} Applying settings...");
-        int i = 0;
-        foreach (PropertyInfo property in typeof(Fields.Address).GetProperties())
+        foreach(MemObject obj in Objects.MemObjects)
         {
-            string? PropertyName = property.Name;
-            object? a = property.GetValue(null);
-
-            string? Address;
-            if (a != null) Address = a.ToString();
-            else Address = "0";
-            Address ??= "0";
-            if (!Address.StartsWith("7F"))
-            {
-                success = false;
-                FieldInfo? fieldInfo = typeof(Sigs).GetField(PropertyName);
-
-                if (fieldInfo == null) break;
-                object? sigObj = fieldInfo.GetValue(null);
-                if (sigObj == null) break;
-                string? sig = sigObj.ToString();
-                Console.WriteLine($"{Console.ErrorPrefix("Patcher")} Address for {Console.Value($"'{PropertyName}'")} not found, sig: {Console.Value($"'{sig}'")} {Console.ErrorTextColor}(Please report this!){Console.R}");
-            }
-            else
-            {
-                string? bytes = M.Mem.ReadBytes(Address, 11).ToHexStringO();
-                Console.WriteLine($"{Console.Prefix("Patcher Debug")} Field Info for {Console.Value($"'{PropertyName}'")}: {Console.Value($"'{Address}'")}:{Console.Value($"'{M.Mem.ReadBytes(Address, 11).ToHexString()}'")} ");
-                switch (PropertyName)
-                {
-                    case "GuiScale":
-                        Fields.GuiScale = Config.CurrentConfig.GuiScale;
-                        Console.WriteLine($"{Console.Prefix("Patcher")} GuiScale has been set to {Console.Value($"{Config.CurrentConfig.GuiScale}")}");
-                        break;
-                    case "Sprint":
-                        if (!Config.CurrentConfig.AutoSprint) break;
-                        M.Mem.WriteMemory(Address, "bytes", Fields.ReplaceBytes.Sprint);
-                        Console.WriteLine($"{Console.Prefix("Patcher")} AutoSprint has been enabled");
-                        break;
-                    case "FastSwing":
-                        if (!Config.CurrentConfig.FastSwing) break;
-                        M.Mem.WriteMemory(Address, "byte", Fields.ReplaceBytes.FastSwing);
-                        Console.WriteLine($"{Console.Prefix("Patcher")} FastSwing has been enabled");
-                        break;
-                    case "ShowName":
-                        if (!Config.CurrentConfig.ShowNametag) break;
-                        M.Mem.WriteMemory(Address, "bytes", Fields.ReplaceBytes.ShowName);
-                        Console.WriteLine($"{Console.Prefix("Patcher")} ShowName has been enabled");
-                        break;
-                    case "AlwaysShowMobTag":
-                        if (!Config.CurrentConfig.ShowMobTag) break;
-                        M.Mem.WriteMemory(Address, "bytes", Fields.ReplaceBytes.AlwaysShowMobTag);
-                        Console.WriteLine($"{Console.Prefix("Patcher")} ShowMobtag has been enabled");
-                        break;
-                    case "ForceShowCoordinates":
-                        if (!Config.CurrentConfig.ForceShowCoordinates) break;
-                        M.Mem.WriteMemory(Address, "bytes", Fields.ReplaceBytes.ForceShowCoordinates);
-                        Console.WriteLine($"{Console.Prefix("Patcher")} ForceShowCoordinates has been enabled");
-                        break;
-                    default:
-                        Console.WriteLine($"{Console.WarningPrefix("Patcher")} Case for property " + PropertyName + " not found!");
-                        break;
-                }
-                string? newBytes = M.Mem.ReadBytes(Address, 11).ToHexStringO();
-                mcHex = mcHex.Replace(bytes, newBytes);
-            }
-            i++;
+            obj.Scan();
+            string? bytes = M.Mem.ReadBytes(obj.Address.ToString("X"), 11).ToHexStringO();
+            bool PatchApplied = obj.ApplyPatchIf();
+            if (success) success = PatchApplied;
+            string? newBytes = M.Mem.ReadBytes(obj.Address.ToString("X"), 11).ToHexStringO();
+            mcHex = mcHex.Replace(bytes, newBytes);
         }
-
         Console.WriteLine($"{Console.Prefix("Patcher Debug")} Killing Minecraft");
         M.Dispose();
-        //Console.WriteLine($"{Console.Prefix("Patcher Debug")} Setting access permissions for path {Console.Value(mcPath)}");
-        //Util.GrantAccess(mcPath);
         Console.WriteLine($"{Console.Prefix("Patcher Debug")} Writing new bytes to EXE");
         FileUtils.WriteFile(mcExe, mcHex.FromHexStringO());
         MultiInstancePatch();

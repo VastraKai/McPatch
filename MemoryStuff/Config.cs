@@ -4,11 +4,11 @@ public static class Config
 {
     public class Configuration
     {
+        public bool CancelSwing;
         public float GuiScale;
-        public bool AutoSprint;
-        public bool FastSwing;
-        public bool ShowNametag;
-        public bool ShowMobTag;
+        public bool AlwaysSprint;
+        public bool ShowPlayerNametag;
+        public bool ForceShowNametags;
         public bool ForceShowCoordinates;
         public bool McMultiInstance;
     }
@@ -63,10 +63,10 @@ public static class Config
                 CurrentConfig = new()
                 {
                     GuiScale = 3,
-                    AutoSprint = true,
-                    FastSwing = false,
-                    ShowNametag = true,
-                    ShowMobTag = false,
+                    AlwaysSprint = true,
+                    CancelSwing = false,
+                    ShowPlayerNametag = true,
+                    ForceShowNametags = false,
                     ForceShowCoordinates = true,
                     McMultiInstance = false
                 };
