@@ -98,7 +98,7 @@ public static class Patcher
         Console.WriteLine($"{Console.Prefix("Patcher")} Applying settings...");
         foreach (MemObject obj in Objects.MemObjects)
         {
-            bool PatchApplied = obj.PatchApply(mcHex);
+            bool PatchApplied = obj.PatchApply(mcHex, out mcHex);
             if (success) success = PatchApplied;
             GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true, true);
             GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true, true);
@@ -107,9 +107,9 @@ public static class Patcher
         GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true, true);
         Console.WriteLine($"{Console.Prefix("Patcher Debug")} Killing Minecraft");
         M.Dispose();
+        MultiInstancePatch();
         Console.WriteLine($"{Console.Prefix("Patcher Debug")} Writing new bytes to EXE");
         FileUtils.WriteFile(mcExe, mcHex.FromHexStringO());
-        MultiInstancePatch();
         File.WriteAllText(LastMcVersionPath, CurrentMcVersion);
         return success;
     }

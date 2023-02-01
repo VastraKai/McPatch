@@ -97,15 +97,18 @@ public class MemObject
     }
     #endregion
     #region Methods
-    public bool PatchApply(string hex)
+    public bool PatchApply(in string hexIn, out string hexOut)
     {
+        hexOut = hexIn;
         if (!Scanned) Scan();
         if (!Address.IsValidStaticAddress())
             return false;
         bool success = ApplyIf();
-        if(OriginalBytes != CurrentBytes) hex = hex.Replace(OriginalBytes, CurrentBytes);
-        else if(ConfigValue != null && ConfigType == typeof(bool) && (bool)ConfigValue)
+        hexOut = hexOut.Replace(OriginalBytes, CurrentBytes);
+        if(ConfigValue != null && ConfigType == typeof(bool) && (bool)ConfigValue && OriginalBytes == CurrentBytes)
             Console.WriteLine($"{Console.WarningPrefix("Patcher")} (in {Console.Value($"{PropertyName}")}) OgBytes are the same as CurrentBytes!");
+        else if (OriginalBytes == CurrentBytes)
+            Console.WriteLine($"{Console.WarningPrefix("Patcher")} No action was performed for {Console.Value($"{PropertyName}")}");
         return success;
     }
 
