@@ -8,7 +8,6 @@ public static class M
 
     public static Mem Mem { get => MemI; set => MemI = value; }
 
-    //public static bool MemSetup = false;
     public static void Setup(bool waitForMcLoad)
     {
         //MemSetup = true;

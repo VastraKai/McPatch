@@ -1,4 +1,6 @@
 ﻿using Memory;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace McPatch;
 public static class MemUtils
@@ -19,9 +21,41 @@ public static class MemUtils
     {
         if (start == 0) start = Util.McMem.beginning;
         if (end == 0) end = Util.McMem.end;
-        long? SigAddr = M.AoBScan(start, end, sig, true, false, true).Result.FirstOrDefault();
+        long? SigAddr = M.AoBScan(start, end, sig, readable, writable, executable).Result.FirstOrDefault();
         if (SigAddr == null)
             throw new Exception($"The sig '{sig}' wasn't found!");
         return (long)(SigAddr + shift);
+    }
+    public static string ToMemTypeString(this FieldInfo field, MemObject obj)
+    {
+        string result = string.Empty;
+        Type type = field.FieldType;
+        switch (type.ToString().ToLower())
+        {
+            case "system.int32":
+                result = "int";
+                break;
+            case "system.int64":
+                result = "long";
+                break;
+            case "system.single":
+                result = "float";
+                break;
+            case "system.double":
+                result = "double";
+                break;
+            case "system.string":
+                result = "string";
+                break;
+            case "system.byte":
+                result = "byte";
+                break;
+            default:
+                // If the type is not supported, return false
+                Console.WriteLine($"{Console.ErrorPrefix("Patcher")} Property {Console.Value($"'{obj}'")} has an unsupported type");
+                break;
+        }
+        return result;
+        
     }
 }

@@ -1,18 +1,61 @@
 ﻿using System.Globalization;
 using System.Text;
+using System.Threading;
 
 namespace McPatch;
 public static class Extensions
 {
-    // Default method for converting a byte array to a hex string
+    #region IsValidStaticAddress overrides
+    /// <summary>
+    /// Checks if the provided address starts with hex 7F.
+    /// </summary>
+    /// <param name="address">The address to check.</param>
+    /// <returns>If the address starts with hex 7F.</returns>
+    public static bool IsValidStaticAddress(this long address) => address.ToString("X").StartsWith("7F");
+    /// <summary>
+    /// Checks if the provided address starts with hex 7F.
+    /// </summary>
+    /// <param name="address">The address to check.</param>
+    /// <returns>If the address starts with hex 7F.</returns>
+    public static bool IsValidStaticAddress(this ulong address) => address.ToString("X").StartsWith("7F");
+    /// <summary>
+    /// Checks if the provided address starts with hex 7F.
+    /// </summary>
+    /// <param name="address">The address to check.</param>
+    /// <returns>If the address starts with hex 7F.</returns>
+    public static bool IsValidStaticAddress(this nint address) => address.ToString("X").StartsWith("7F"); // nint is the same as IntPtr
+    /// <summary>
+    /// Checks if the provided address starts with hex 7F.
+    /// </summary>
+    /// <param name="address">The address to check.</param>
+    /// <returns>If the address starts with hex 7F.</returns>
+    public static bool IsValidStaticAddress(this nuint address) => address.ToString("X").StartsWith("7F"); // nuint is the same as UIntPtr
+    /// <summary>
+    /// Checks if the provided address starts with hex 7F.
+    /// </summary>
+    /// <param name="address">The address to check.</param>
+    /// <returns>If the address starts with hex 7F.</returns>
+    public static bool IsValidStaticAddress(this string address) => address.StartsWith("7F");
+    #endregion
+    #region Hex string and byte array manipulation methods 
+    /// <summary>
+    /// Default method for converting a byte array to a hex string.
+    /// </summary>
+    /// <param name="bytes">The byte array to convert.</param>
+    /// <returns>The converted hex string.</returns>
     public static string ToHexString(this byte[] bytes)
     {
         if (bytes == null) return string.Empty;
         return BitConverter.ToString(bytes).Replace("-", " ");
     }
-    // Default method for converting a hex string to a byte array
+    /// <summary>
+    /// Default method for converting a hex string to a byte array.
+    /// </summary>
+    /// <param name="str">The hex string to convert.</param>
+    /// <returns>The converted byte array.</returns>
     public static byte[] FromHexString(this string str)
     {
+        str = str.Filter("abcdefABCDEF1234567890"); // Make sure the string doesn't contain any illegal characters
         byte[] bytes = new byte[str.Length / 2];
         for (int i = 0; i < str.Length; i += 2)
         {
@@ -20,7 +63,12 @@ public static class Extensions
         }
         return bytes;
     }
-    // Optimized method for converting a byte array to a hex string
+
+    /// <summary>
+    /// Optimized method for converting a byte array to a hex string.
+    /// </summary>
+    /// <param name="bytes">The byte array to convert.</param>
+    /// <returns>The converted hex string.</returns>
     public static string ToHexStringO(this byte[] bytes)
     {
         if (bytes == null) return string.Empty;
@@ -37,7 +85,11 @@ public static class Extensions
         Console.Write("\r                                                                                \r");
         return sb.ToString();
     }
-    // Optimized method for converting a hex string to a byte array
+    /// <summary>
+    /// Optimized method for converting a hex string to a byte array.
+    /// </summary>
+    /// <param name="str">The string to convert.</param>
+    /// <returns>The converted byte array.</returns>
     public static byte[] FromHexStringO(this string str)
     {
         byte[] bytes = new byte[str.Length / 2];
@@ -51,37 +103,79 @@ public static class Extensions
         Console.Write("\r                                                                                \r");
         return bytes;
     }
-
-    public static bool MeetsChunkSize(this int i, int chunkSize = (1024 * 128)) => (i / chunkSize) == (i / (float)(chunkSize));
-    public static string NS(this string str)
-    {
-        return str.Replace(" ", "");
-    }
+    /// <summary>
+    /// Converts a byte to a hex string.
+    /// </summary>
+    /// <param name="b">The byte to convert.</param>
+    /// <returns>The converted hex string.</returns>
     public static string ToHexString(this byte b)
     {
         return BitConverter.ToString(new byte[1] { b }).Replace("-", " ");
     }
+    /// <summary>
+    /// Converts an int to a hex string.
+    /// </summary>
+    /// <param name="i">The int to convert.</param>
+    /// <returns>The converted hex string.</returns>
     public static string ToHexString(this int i)
     {
-        return BitConverter.ToString(new byte[1] { (byte)i }).Replace("-", " ");
+        return BitConverter.ToString(BitConverter.GetBytes(i)).Replace("-", "");
     }
-
-    public static string FilterString(this string input, string charMap)
+    /// <summary>
+    /// Checks if the given bytesWritten value has a decimal when divided by chunkSize.
+    /// If true, it means that the value meets the chunkSize.
+    /// </summary>
+    /// <param name="bytesWritten">The amount of bytes written so far</param>
+    /// <param name="chunkSize">The chunk size of each section of bytes</param>
+    /// <returns>If the bytesWritten meets the chunkSize.</returns>
+    public static bool MeetsChunkSize(this int bytesWritten, int chunkSize = (1000 * 128)) => (bytesWritten / chunkSize) == (bytesWritten / (float)(chunkSize));
+    #endregion
+    #region String stuff
+    /// <summary>
+    /// Removes spaces from the provided string.
+    /// </summary>
+    /// <param name="str">The string to remove spaces from.</param>
+    /// <returns>The string, without spaces.</returns>
+    public static string NS(this string str)
+    {
+        return str.Replace(" ", "");
+    }
+    /// <summary>
+    /// The valid filter modes.
+    /// </summary>
+    public enum FilterMode
+    {
+        /// <summary>
+        /// Filter the string to include characters from the character map.
+        /// </summary>
+        Include,
+        /// <summary>
+        /// Filter the string to include characters from the character map.
+        /// </summary>
+        Exclude
+    }
+    /// <summary>
+    /// Filters a string to either include or exclude characters.
+    /// </summary>
+    /// <param name="input">The string to filter.</param>
+    /// <param name="charMap">The map of characters to keep or remove in the string.</param>
+    /// <param name="mode">The filter mode.</param>
+    /// <returns>The new, filtered string.</returns>
+    public static string Filter(this string input, string charMap, FilterMode mode = FilterMode.Include)
     {
         // Create a new StringBuilder
         StringBuilder sb = new();
         // Loop through each character in the input string
         foreach (char c in input)
         {
-            // Check if the character is in the character map
-            if (charMap.Contains(c))
-            {
-                // Add the character to the StringBuilder
+            bool contains = charMap.Contains(c);
+            if (mode == FilterMode.Exclude) contains = !contains;
+            if (contains)
                 sb.Append(c);
-            }
         }
         // Return the filtered string
         return sb.ToString();
     }
+    #endregion
 }
 

@@ -14,16 +14,16 @@ public static class Program
         else
         {
             Console.Write($"{Console.Prefix("Patcher")} Edit config? ");
-            ConsoleKey key = ConsoleKey.NoName;
-            while (key != ConsoleKey.Y && key != ConsoleKey.N)
+            string key = string.Empty;
+            while (key != "y" && key != "n")
             {
-                key = Console.ReadKey(true).Key;
-                if (key == ConsoleKey.Y)
+                key = Console.ReadKey(true).KeyChar.ToString().ToLower(); // Console.ReadKey(true).KeyChar doesn't work with RDP for some reason
+                if (key == "y")
                 {
                     Console.Write("\r                           \r");
                     ConfigPrompt();
                 }
-                else if (key == ConsoleKey.N)
+                else if (key == "n")
                 {
                     Console.Write("\r                           \r");
                 }

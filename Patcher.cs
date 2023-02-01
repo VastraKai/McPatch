@@ -85,7 +85,7 @@ public static class Patcher
         Console.WriteLine($"{Console.Prefix("Patcher Debug")} mcExeBak: {Console.Value(mcExeBak)}");
         if (mcPath.Contains("Program Files\\WindowsApps\\Microsoft.Minecraft", StringComparison.CurrentCultureIgnoreCase)) {
             Console.WriteLine($"{Console.ErrorPrefix("Patcher")} The default Minecraft directory is not writable.");
-            Console.WriteLine($"{Console.ErrorPrefix("Patcher")} View https://github.com/VastraKai/McPatch/commit/458c104322c4a22ab20cd2a57ad2a3309776eb84 for more info.");
+            Console.WriteLine($"{Console.ErrorPrefix("Patcher")} Visit https://github.com/VastraKai/McPatch/commit/458c104322c4a22ab20cd2a57ad2a3309776eb84 for more info.");
             return false;
         }
         Console.WriteLine($"{Console.Prefix("Patcher Debug")} Setting access permissions for path {Console.Value(mcPath)}");
@@ -93,22 +93,23 @@ public static class Patcher
         DoBackupStuff();
 
         string mcHex = File.ReadAllBytes(mcExe).ToHexStringO();
+        Console.WriteLine($"{Console.Prefix("Patcher")} Scanning...");
+        foreach (MemObject obj in Objects.MemObjects) if(!obj.Scanned) obj.Scan();
         Console.WriteLine($"{Console.Prefix("Patcher")} Applying settings...");
-        foreach(MemObject obj in Objects.MemObjects)
+        foreach (MemObject obj in Objects.MemObjects)
         {
-            obj.Scan();
-            string? bytes = M.Mem.ReadBytes(obj.Address.ToString("X"), 11).ToHexStringO();
-            bool PatchApplied = obj.ApplyPatchIf();
+            bool PatchApplied = obj.PatchApply(mcHex);
             if (success) success = PatchApplied;
-            string? newBytes = M.Mem.ReadBytes(obj.Address.ToString("X"), 11).ToHexStringO();
-            mcHex = mcHex.Replace(bytes, newBytes);
+            GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true, true);
+            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true, true);
         }
+        GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true, true);
+        GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true, true);
         Console.WriteLine($"{Console.Prefix("Patcher Debug")} Killing Minecraft");
         M.Dispose();
         Console.WriteLine($"{Console.Prefix("Patcher Debug")} Writing new bytes to EXE");
         FileUtils.WriteFile(mcExe, mcHex.FromHexStringO());
         MultiInstancePatch();
-
         File.WriteAllText(LastMcVersionPath, CurrentMcVersion);
         return success;
     }
