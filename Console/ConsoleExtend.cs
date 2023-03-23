@@ -1,95 +1,80 @@
 ﻿using System.Diagnostics;
-using System.Runtime.InteropServices;
 
-namespace McPatch;
+namespace CustomConsole;
+
 // Extended from ConsoleBase
 public static partial class Console
 {
-    internal class WindowsConsoleConfig
-    {
-        const int STD_OUTPUT_HANDLE = -11;
-        const uint ENABLE_VIRTUAL_TERMINAL_PROCESSING = 4;
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        static extern IntPtr GetStdHandle(int nStdHandle);
-
-        [DllImport("kernel32.dll")]
-        static extern bool GetConsoleMode(IntPtr hConsoleHandle, out uint lpMode);
-
-        [DllImport("kernel32.dll")]
-        static extern bool SetConsoleMode(IntPtr hConsoleHandle, uint dwMode);
-
-        public void SetupConsole()
-        {
-            IntPtr handle = GetStdHandle(STD_OUTPUT_HANDLE);
-            GetConsoleMode(handle, out uint mode);
-            mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-            SetConsoleMode(handle, mode);
-        }
-    }
+    public static Dictionary<string, string> ColorShortcuts = new();
     /// <summary>
-    /// Use this to setup the console for escape codes
+    /// Registers a new shortcut for a color.
     /// </summary>
-    public static void SetupConsole() // Use to setup the console and enable escape codes
+    /// <param name="shortcut">The shortcut text to replace with the escape code string.</param>
+    /// <param name="r">Red value.</param>
+    /// <param name="g">Green value.</param>
+    /// <param name="b">Blue value.</param>
+    public static void RegisterColorShortcut(string shortcut, float r, float g, float b) =>
+        RegisterColorShortcut(shortcut, EscColor(r, g, b));
+    /// <summary>
+    /// Gets the escape code for a color shortcut.
+    /// </summary>
+    /// <param name="shortcut">The shortcut to get.</param>
+    /// <param name="escapeCode">The escape code of the shortcut.</param>
+    public static void GetColorShortcut(string shortcut, out string escapeCode) =>
+        ColorShortcuts.TryGetValue(shortcut, out escapeCode!);
+    public static string ReplaceWithColorShortcuts(string text)
     {
-        if (Environment.OSVersion.Platform.ToString().ToLower().Contains("win"))
+        foreach (var shortcut in ColorShortcuts)
         {
-            WindowsConsoleConfig ConConfig = new();
-            ConConfig.SetupConsole();
+            text = text.Replace(shortcut.Key, shortcut.Value);
         }
+        return text;
     }
-    // Hide the console window
-    [DllImport("user32.dll")]
-    static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-    [DllImport("kernel32.dll")]
-    static extern IntPtr GetConsoleWindow();
-    const int SW_HIDE = 0;
-    const int SW_SHOW = 5;
-    public static void HideConsole()
-    {
-        IntPtr handle = GetConsoleWindow();
-        ShowWindow(handle, SW_HIDE);
-    }
-    public static void ShowConsole()
-    {
-        IntPtr handle = GetConsoleWindow();
-        ShowWindow(handle, SW_SHOW);
-    }
-    // could be used by other things too
-    public static string ESC = "\x001B"; // Escape character
+    private static void RegisterColorShortcut(string shortcut, string escapeCode) =>
+        ColorShortcuts.Add(shortcut, escapeCode);
+    /// <summary>
+    /// A constant character to be used with escape codes.
+    /// </summary>
+    public static char ESC = '\x001B';
+
     /// <summary>
     /// escColor: Gets the escape code to set a foreground color, or reset the foreground color.
     /// </summary>
     /// <param name="r">The value to be used for Red</param>
     /// <param name="g">The value to be used for Green</param>
     /// <param name="b">The value to be used for Blue</param>
-    /// <returns>Foreground color escape code as string</returns>
+    /// <returns>Foreground color escape code.</returns>
     public static string EscColor(float r, float g, float b) // returns a foreground color escape code 
-    {                                                                            // (changes the foreground color based on red, green, and blue values)
-        int red = (int)Math.Round((float)(255 * r));
+    {
+        // (changes the foreground color based on red, green, and blue values)
+        int red = (int)Math.Round((float)(255 * r), MidpointRounding.ToEven);
         int green = (int)Math.Round((float)(255 * g));
         int blue = (int)Math.Round((float)(255 * b));
         return $"{ESC}[38;2;{red};{green};{blue}m";
     }
-    public static string EscColor(string red, string green, string blue) => $"{ESC}[38;2;{red};{green};{blue}m";
 
     /// <summary>
-    /// Uses cmd's cls instead of the default Console.Clear. This can be faster in some cases.
+    /// Returns an escape code to set the foreground color to the specified color.
     /// </summary>
-    public static void ClearAlt() => Process.Start("cmd.exe", "/c cls").WaitForExit();
+    /// <param name="r">Red value</param>
+    /// <param name="g">Green value</param>
+    /// <param name="b">Blue value</param>
+    /// <returns>Foreground color escape code.</returns>
+    public static string EscColor(int r, int g, int b) => $"{ESC}[38;2;{r};{g};{b}m";
+
     /// <summary>
     /// Switches to an alternative console buffer.
     /// </summary>
     public static void SwitchToAlternativeBuffer() => Write($"{ESC}[?1049h");
+
     /// <summary>
     /// Switches to the default console buffer.
     /// </summary>
     public static void SwitchToMainBuffer() => Write($"{ESC}[?1049l");
-    // i should not need to explain this...
-    public static string WarningPrefix(string prefixText) => $"{PrefixColor}[{prefixText} {WarningTextColor}Warning{PrefixColor}]{R}";
-    public static string ErrorPrefix(string prefixText) => $"{PrefixColor}[{prefixText} {ErrorTextColor}Error{PrefixColor}]{R}";
-    public static string Prefix(string prefixText) => $"{PrefixColor}[{prefixText}]{R}";
-    public static string Value(string valueText) => $"{ValueColor}{valueText}{R}";
+
+    /// <summary>
+    /// Waits for the user to press the enter key.
+    /// </summary>
     public static void WaitForEnter()
     {
         ConsoleKey key = ConsoleKey.NoName;
@@ -99,6 +84,14 @@ public static partial class Console
         }
     }
 
+    public static string WarningPrefix(string prefixText) =>
+        $"{PrefixColor}[{prefixText} {WarningTextColor}Warning{PrefixColor}]{R}";
+
+    public static string ErrorPrefix(string prefixText) =>
+        $"{PrefixColor}[{prefixText} {ErrorTextColor}Error{PrefixColor}]{R}";
+
+    public static string Prefix(string prefixText) => $"{PrefixColor}[{prefixText}]{R}";
+    public static string Value(string valueText) => $"{ValueColor}{valueText}{R}";
     public static string R = "\x001B[0m";
     public static string PrefixColor = Console.EscColor(0.0f, 1.0f, 1.0f);
     public static string WarningTextColor = Console.EscColor(1.0f, 1.0f, 0.0f);

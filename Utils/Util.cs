@@ -117,22 +117,11 @@ public static class Util
         }
         return modBeginEnd;
     }
+    public static ModBeginEnd McMem => GetModuleInMemory("Minecraft.Windows");
     public static void OpenMc() => Process.Start("explorer.exe", "Minecraft://");
     public static void Kill() => Process.GetCurrentProcess().Kill();
-    public static ModBeginEnd McMem
-    {
-        get
-        {
-            return GetModuleInMemory("Minecraft.Windows");
-        }
-    }
-    public static Process? McProcess
-    {
-        get
-        {
-            return Process.GetProcessesByName("Minecraft.Windows").FirstOrDefault();
-        }
-    }
+
+    public static Process? McProcess => Process.GetProcessesByName("Minecraft.Windows").FirstOrDefault();
     public static void GrantAccess(string fullPath)
     {
         DirectoryInfo dInfo = new(fullPath);

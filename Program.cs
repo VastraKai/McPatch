@@ -1,9 +1,12 @@
-﻿namespace McPatch;
+﻿global using Console = CustomConsole.Console;
+
+namespace McPatch;
+
 public static class Program
 {
     static void Main(string[] args)
     {
-        Console.SetupConsole();
+        Console.Config.SetupConsole();
         if (args.Length > 0 && args[0].ToLower() == "--reset-config") Config.ResetConfig();
 
         bool newConfig = Config.LoadConfig();
@@ -17,7 +20,8 @@ public static class Program
             string key = string.Empty;
             while (key != "y" && key != "n")
             {
-                key = Console.ReadKey(true).KeyChar.ToString().ToLower(); // Console.ReadKey(true).KeyChar doesn't work with RDP for some reason
+                key = Console.ReadKey(true).KeyChar.ToString()
+                    .ToLower(); // Console.ReadKey(true).KeyChar doesn't work with RDP for some reason
                 if (key == "y")
                 {
                     Console.Write("\r                           \r");
@@ -29,6 +33,7 @@ public static class Program
                 }
             }
         }
+
         bool success = false;
         Thread patchThread = new(() =>
         {
@@ -36,13 +41,20 @@ public static class Program
             {
                 success = Patcher.Patch();
                 // memory usage is only up to like 500 now :D
-                if (success) Console.WriteLine($"{Console.Prefix("Patcher")} {Console.GreenTextColor}Settings applied successfully!{Console.R}");
-                else Console.WriteLine($"{Console.ErrorPrefix("Patcher")} {Console.ErrorTextColor}Failed to apply settings...{Console.R}");
+                if (success)
+                    Console.WriteLine(
+                        $"{Console.Prefix("Patcher")} {Console.GreenTextColor}Settings applied successfully!{Console.R}");
+                else
+                    Console.WriteLine(
+                        $"{Console.ErrorPrefix("Patcher")} {Console.ErrorTextColor}Failed to apply settings...{Console.R}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"{Console.ErrorPrefix("Patcher")} An exception was thrown (please report this): {ex}");
-                if (ex.GetType().ToString() == "System.ArgumentNullException") Console.WriteLine($"{Console.Prefix("Patcher")} Looks like an \"invalid sig\" error. Make sure your game isn't minimized then try again.");
+                Console.WriteLine(
+                    $"{Console.ErrorPrefix("Patcher")} An exception was thrown (please report this): {ex}");
+                if (ex.GetType().ToString() == "System.ArgumentNullException")
+                    Console.WriteLine(
+                        $"{Console.Prefix("Patcher")} Looks like an \"invalid sig\" error. Make sure your game isn't minimized then try again.");
             }
         })
         {
@@ -55,10 +67,11 @@ public static class Program
         GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true, true);
         GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true, true);
 
-        if(success) Util.OpenMc();
+        if (success) Util.OpenMc();
         Console.WriteLine($"{Console.Prefix("Patcher")} Press enter to exit...");
         Console.WaitForEnter();
     }
+
     public static void ConfigPrompt()
     {
         bool DevModeEnabled = Util.IsDeveloperModeEnabled();
@@ -71,16 +84,21 @@ public static class Program
             Console.WriteLine($"1) Gui Scale: {Console.Value((Config.CurrentConfig.GuiScale.ToString()))}");
             Console.WriteLine($"2) Always Sprint: {(Config.CurrentConfig.AlwaysSprint ? EnabledText : DisabledText)}");
             Console.WriteLine($"3) Cancel Swing: {(Config.CurrentConfig.CancelSwing ? EnabledText : DisabledText)}");
-            Console.WriteLine($"4) Show Player Nametag: {(Config.CurrentConfig.ShowPlayerNametag ? EnabledText : DisabledText)}");
-            Console.WriteLine($"5) Force Show Nametags: {(Config.CurrentConfig.ForceShowNametags ? EnabledText : DisabledText)}");
-            Console.WriteLine($"6) Force Show Coordinates: {(Config.CurrentConfig.ForceShowCoordinates ? EnabledText : DisabledText)}");
-            Console.Write($"7) Minecraft Multi-Instance: {(Config.CurrentConfig.McMultiInstance ? EnabledText : DisabledText)}");
-            if (!DevModeEnabled) Console.Write($" {Console.ErrorTextColor}(You must enable developer mode!){Console.R}");
+            Console.WriteLine(
+                $"4) Show Player Nametag: {(Config.CurrentConfig.ShowPlayerNametag ? EnabledText : DisabledText)}");
+            Console.WriteLine(
+                $"5) Force Show Nametags: {(Config.CurrentConfig.ForceShowNametags ? EnabledText : DisabledText)}");
+            Console.WriteLine(
+                $"6) Force Show Coordinates: {(Config.CurrentConfig.ForceShowCoordinates ? EnabledText : DisabledText)}");
+            Console.Write(
+                $"7) Minecraft Multi-Instance: {(Config.CurrentConfig.McMultiInstance ? EnabledText : DisabledText)}");
+            if (!DevModeEnabled)
+                Console.Write($" {Console.ErrorTextColor}(You must enable developer mode!){Console.R}");
             Console.WriteLine();
             Console.WriteLine($"8) Save Config");
             Console.WriteLine($"9) Exit and patch");
             Console.Write($"Select an option: {Console.ValueColor}");
-        ret:
+            ret:
             string selection = Console.ReadKey().KeyChar.ToString().ToLower();
             Console.WriteLine(Console.R);
             switch (selection)
@@ -96,6 +114,7 @@ public static class Program
                     {
                         Config.CurrentConfig.GuiScale = scale;
                     }
+
                     break;
                 case "2":
                     Config.CurrentConfig.AlwaysSprint = !Config.CurrentConfig.AlwaysSprint;
@@ -117,10 +136,12 @@ public static class Program
                     DevModeEnabled = Util.IsDeveloperModeEnabled();
                     if (!DevModeEnabled)
                     {
-                        Console.WriteLine($"{Console.WarningPrefix("Config Menu")} You must enable developer mode to use multi-instance. Please enable it before you continue.");
+                        Console.WriteLine(
+                            $"{Console.WarningPrefix("Config Menu")} You must enable developer mode to use multi-instance. Please enable it before you continue.");
                         Console.WriteLine($"{Console.Prefix("Config Menu")} Press enter to continue...");
                         Console.WaitForEnter();
                     }
+
                     break;
                 case "8":
                     Config.SaveConfig();
