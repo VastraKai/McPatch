@@ -20,8 +20,6 @@ If you would like to contribute, you can fork the repository, edit the code, the
 - Overrides Minecraft's Gui Scale.
 ### Always Sprint 
 - Automatically sprints for you.
-### Cancel Swing Animation 
-- Makes the swing animation play instantly regardless if it's already playing
 ### Multi Instance 
 - Forces Minecraft to support multiple instances by modding the AppxManifest.
 
