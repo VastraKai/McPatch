@@ -26,9 +26,9 @@ public static class Objects
         },
         new MemObject("ShowPlayerNametag")
         {
-            Sig = "? ? ? ? ? ? 49 8B ? 49 8B ? E8 ? ? ? ? 84 ? ? ? ? ? ? ? 49 8B ? 48 8B ? ? ? 48 8B",
-            SigOffset = 0,
-            NewBytes = "90 90 90 90 90 90"
+            Sig = "4C 8B ? ? ? ? ? 0f ? ? ? ? ? 49 8B D7 49 8B CE e8 ? ? ? ? 84 c0",
+            SigOffset = 04,
+            NewBytes = "90 90 90"
         },
         new MemObject("ForceShowNametags")
         {
@@ -98,5 +98,32 @@ Minecraft.Windows.exe+72A946: 7D 04                          - jnl Minecraft.Win
 Minecraft.Windows.exe+72A948: 85 C9                          - test ecx,ecx
 Minecraft.Windows.exe+72A94A: 79 11                          - jns Minecraft.Windows.exe+72A95D
 Minecraft.Windows.exe+72A94C: C7 83 D4 05 00 00 FF FF FF FF  - mov [rbx+000005D4],FFFFFFFF
+
+// For ShowPlayerNametag, addresses from MC 1.19.71
+// ORIGINAL CODE - INJECTION POINT: Minecraft.Windows.exe+E89947
+
+Minecraft.Windows.exe+E89914: 48 85 C0                          - test rax,rax
+Minecraft.Windows.exe+E89917: 0F 84 65 05 00 00                 - je Minecraft.Windows.exe+E89E82
+Minecraft.Windows.exe+E8991D: 4D 8B AE A0 01 00 00              - mov r13,[r14+000001A0]
+Minecraft.Windows.exe+E89924: 4C 89 6D 90                       - mov [rbp-70],r13
+Minecraft.Windows.exe+E89928: 49 8B 5D 00                       - mov rbx,[r13+00]
+Minecraft.Windows.exe+E8992C: 49 3B DD                          - cmp rbx,r13
+Minecraft.Windows.exe+E8992F: 0F 84 AD 03 00 00                 - je Minecraft.Windows.exe+E89CE2
+Minecraft.Windows.exe+E89935: 66 66 66 0F 1F 84 00 00 00 00 00  - nop word ptr [rax+rax+00000000]
+Minecraft.Windows.exe+E89940: 4C 8B 7B 40                       - mov r15,[rbx+40]
+// ---------- INJECTING HERE ----------
+Minecraft.Windows.exe+E89944: 4C 3B F8                          - cmp r15,rax
+// ---------- DONE INJECTING  ----------
+Minecraft.Windows.exe+E89947: 0F 84 66 03 00 00                 - je Minecraft.Windows.exe+E89CB3
+Minecraft.Windows.exe+E8994D: 49 8B D7                          - mov rdx,r15
+Minecraft.Windows.exe+E89950: 49 8B CE                          - mov rcx,r14
+Minecraft.Windows.exe+E89953: E8 D8 FB FF FF                    - call Minecraft.Windows.exe+E89530
+Minecraft.Windows.exe+E89958: 84 C0                             - test al,al
+Minecraft.Windows.exe+E8995A: 0F 84 53 03 00 00                 - je Minecraft.Windows.exe+E89CB3
+Minecraft.Windows.exe+E89960: 49 8B 07                          - mov rax,[r15]
+Minecraft.Windows.exe+E89963: 48 8B 54 24 70                    - mov rdx,[rsp+70]
+Minecraft.Windows.exe+E89968: 48 8B 92 E0 00 00 00              - mov rdx,[rdx+000000E0]
+Minecraft.Windows.exe+E8996F: 49 8B CF                          - mov rcx,r15
+Minecraft.Windows.exe+E89972: 48 8B 80 18 02 00 00              - mov rax,[rax+00000218]
 */
 
