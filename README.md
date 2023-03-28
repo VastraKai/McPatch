@@ -9,6 +9,8 @@ If you would like to contribute, you can fork the repository, edit the code, the
 
 # Current features
 
+### Custom Gui Scale
+- Overrides Minecraft's Gui Scale.
 ### Show Player Nametag 
 - Shows the local player nametag in third-person.
 ### Force Always Show Nametags
@@ -16,8 +18,8 @@ If you would like to contribute, you can fork the repository, edit the code, the
 - Might make nametag glitchy when sneaking.
 ### Force Show Coordinates
 - Forces Minecraft to show player coords, regardless of ShowCoordinates gamerule.
-### Custom Gui Scale
-- Overrides Minecraft's Gui Scale.
+### Cancel Swing Animation
+- Makes the swing animation play instantly regardless if it's already playing
 ### Always Sprint 
 - Automatically sprints for you.
 ### Multi Instance 

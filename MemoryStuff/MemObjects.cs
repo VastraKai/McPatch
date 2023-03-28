@@ -7,8 +7,8 @@ public static class Objects
         // The first parameter must have a corresponding config field.
         new MemObject("CancelSwing")
         {
-            Sig = "00 ? ? 8B ? ? ? ? ? E8 ? ? ? ? 99 2B",
-            SigOffset = 1,
+            Sig = "48 81 ? ? ? ? ? 48 8b ? ? ? ? ? 48 33 c4 48 89 ? ? ? 48 8b d9 80 ? ? ? 00 00 00",
+            SigOffset = 0x20,
             NewBytes = "EB"
         },
         new MemObject("GuiScale")
@@ -70,5 +70,33 @@ Minecraft.Windows.exe+6CA0EE: CC                             - int 3
 Minecraft.Windows.exe+6CA0EF: CC                             - int 3 
 Minecraft.Windows.exe+6CA0F0: 40 53                          - push rbx
 Minecraft.Windows.exe+6CA0F2: 48 83 EC 20                    - sub rsp,20
+
+
+// For CancelSwing, addresses from MC 1.19.70
+// ORIGINAL CODE - INJECTION POINT: Minecraft.Windows.exe+72A932
+
+Minecraft.Windows.exe+72A90D: CC                             - int 3 
+Minecraft.Windows.exe+72A90E: CC                             - int 3 
+Minecraft.Windows.exe+72A90F: CC                             - int 3 
+Minecraft.Windows.exe+72A910: 40 53                          - push rbx
+Minecraft.Windows.exe+72A912: 48 81 EC 80 00 00 00           - sub rsp,00000080
+Minecraft.Windows.exe+72A919: 48 8B 05 70 3A F4 03           - mov rax,[Minecraft.Windows.exe+466E390]
+Minecraft.Windows.exe+72A920: 48 33 C4                       - xor rax,rsp
+Minecraft.Windows.exe+72A923: 48 89 44 24 70                 - mov [rsp+70],rax
+Minecraft.Windows.exe+72A928: 48 8B D9                       - mov rbx,rcx
+Minecraft.Windows.exe+72A92B: 80 B9 D0 05 00 00 00           - cmp byte ptr [rcx+000005D0],00
+// ---------- INJECTING HERE ----------
+Minecraft.Windows.exe+72A932: 74 18                          - je Minecraft.Windows.exe+72A94C
+// ---------- DONE INJECTING  ----------
+Minecraft.Windows.exe+72A934: E8 47 BC 08 02                 - call Minecraft.Windows.exe+27B6580
+Minecraft.Windows.exe+72A939: 99                             - cdq 
+Minecraft.Windows.exe+72A93A: 2B C2                          - sub eax,edx
+Minecraft.Windows.exe+72A93C: D1 F8                          - sar eax,1
+Minecraft.Windows.exe+72A93E: 8B 8B D4 05 00 00              - mov ecx,[rbx+000005D4]
+Minecraft.Windows.exe+72A944: 3B C8                          - cmp ecx,eax
+Minecraft.Windows.exe+72A946: 7D 04                          - jnl Minecraft.Windows.exe+72A94C
+Minecraft.Windows.exe+72A948: 85 C9                          - test ecx,ecx
+Minecraft.Windows.exe+72A94A: 79 11                          - jns Minecraft.Windows.exe+72A95D
+Minecraft.Windows.exe+72A94C: C7 83 D4 05 00 00 FF FF FF FF  - mov [rbx+000005D4],FFFFFFFF
 */
 
