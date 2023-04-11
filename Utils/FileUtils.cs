@@ -12,7 +12,8 @@ public static class FileUtils
         foreach (byte b in bytes)
         {
             fs.WriteByte(b);
-            if (i.MeetsChunkSize()) Console.Write($"\r{Console.Prefix("FileUtils")} Writing to {Path.GetFileName(path)}: {Console.Value($"{fs.Position / (float)bytes.Length * 100}%")} complete   ");
+            if (i.MeetsChunkSize())
+                Console.Log.Write("FileUtils", $"Writing to &v{Path.GetFileName(path)}&r: &v{fs.Position / (float)bytes.Length * 100}%&r complete        \r", LogLevel.Debug);
             i++;
         }
         Console.Write("\r                                                                                \r");

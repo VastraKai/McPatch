@@ -29,11 +29,12 @@ public static class Config
             if (location == "default") location = configPath;
             string json = JsonConvert.SerializeObject(CurrentConfig, Formatting.Indented);
             File.WriteAllText(location, json);
-            if (!hideSaveMsg) Console.WriteLine($"{Console.Prefix("Config")}{Console.GreenTextColor} Config saved successfully.{Console.R}");
+            if (!hideSaveMsg) Console.Log.WriteLine("Config", "Config saved successfully.", LogLevel.Success);
+            
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"{Console.ErrorPrefix("Config")}{Console.WarningTextColor} Failed to save config: {ex.Message}{Console.R}");
+            Console.Log.WriteLine("Config", $"&cFailed to save config: {ex.Message}", LogLevel.Error);
         }
     }
     // Load Config
@@ -54,12 +55,12 @@ public static class Config
                     CurrentConfig.ForceShowCoordinates = false;
                     SaveConfig(true);
                 }
-                Console.WriteLine($"{Console.Prefix("Config")}{Console.GreenTextColor} Config loaded successfully.{Console.R}");
+                Console.Log.WriteLine("Config", "&aConfig loaded successfully.&r", LogLevel.Success);
 
             }
             else
             {
-                Console.WriteLine($"{Console.WarningPrefix("Config")}{Console.WarningTextColor} Config file not found, creating a new one.{Console.R}");
+                Console.Log.WriteLine("Config", "&eConfig file not found, creating a new one.&r", LogLevel.Warning);
                 CurrentConfig = new()
                 {
                     GuiScale = 3,
@@ -76,7 +77,7 @@ public static class Config
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"{Console.ErrorPrefix("Config")}{Console.WarningTextColor} Failed to load config: {ex.Message}{Console.R}");
+            Console.Log.WriteLine("Config", $"&cFailed to load config: {ex.Message}", LogLevel.Error);
         }
         return false;
     }
@@ -86,6 +87,7 @@ public static class Config
         if (location == "default") location = configPath;
         if (System.IO.File.Exists(location))
             File.Delete(location);
-        Console.WriteLine($"{Console.Prefix("Config")}{Console.GreenTextColor} Config reset successfully.{Console.R}");
+        Console.Log.WriteLine("Config", "&aConfig reset successfully.&r", LogLevel.Success);
+        
     }
 }

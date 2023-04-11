@@ -78,7 +78,7 @@ public static class Extensions
         {
             sb.AppendFormat("{0:x2}", b);
             // {Console.Value($"{(float)i / (float)length * 100}%")}
-            if (i.MeetsChunkSize()) Console.Write($"\r{Console.Prefix("FileUtils")} Converting to hex string: {Console.Value($"{i / (float)length * 100}%")} complete           ");
+            if (i.MeetsChunkSize()) Console.Log.Write("FileUtils", $"Converting to hex string: &v{i / (float)length * 100}%&r complete           \r");
             i++;
         }
         Console.Write("\r                                                                                \r");
@@ -97,7 +97,7 @@ public static class Extensions
         {
             int iDiv = i / 2;
             bytes[iDiv] = Convert.ToByte(str.Substring(i, 2), 16);
-            if (iDiv.MeetsChunkSize()) Console.Write($"\r{Console.Prefix("FileUtils")} Converting to byte array: {Console.Value($"{iDiv / (float)length * 100}%")} complete           ");
+            if (iDiv.MeetsChunkSize()) Console.Log.Write("FileUtils", $"Converting to byte array: &v{iDiv / (float)length * 100}%&r complete           \r");
         }
         Console.Write("\r                                                                                \r");
         return bytes;
@@ -127,7 +127,7 @@ public static class Extensions
     /// <param name="bytesWritten">The amount of bytes written so far</param>
     /// <param name="chunkSize">The chunk size of each section of bytes</param>
     /// <returns>If the bytesWritten meets the chunkSize.</returns>
-    public static bool MeetsChunkSize(this int bytesWritten, int chunkSize = (1000 * 128)) => (bytesWritten / chunkSize) == (bytesWritten / (float)(chunkSize));
+    public static bool MeetsChunkSize(this int bytesWritten, int chunkSize = (1000 * 512)) => (bytesWritten / chunkSize) == (bytesWritten / (float)(chunkSize));
     #endregion
     #region String stuff
     /// <summary>

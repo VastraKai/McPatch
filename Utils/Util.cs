@@ -261,27 +261,43 @@ public static class Util
         {
             // Check if dev mode is enabled using the error code returned from cmd /c "reg query HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock /v AllowDevelopmentWithoutDevLicense | findstr /I /C:"0x1""
             // Create a process to run the command
-            Process p = new();
-            p.StartInfo.FileName = Environment.ExpandEnvironmentVariables("%SystemRoot%\\System32\\cmd.exe");
-            p.StartInfo.Arguments = "/c \"reg query HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\AppModelUnlock /v AllowDevelopmentWithoutDevLicense | findstr /I /C:\"0x1\"\"";
-            p.StartInfo.RedirectStandardOutput = true;
-            p.StartInfo.UseShellExecute = false;
-            p.StartInfo.CreateNoWindow = true;
+            var p = new Process()
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = Environment.ExpandEnvironmentVariables("%SystemRoot%\\System32\\cmd.exe"),
+                    Arguments =
+                        "/c \"reg add HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\AppModelUnlock /v AllowDevelopmentWithoutDevLicense /t REG_DWORD /d 1 /f\"",
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                }
+            };
+            p.Start();
+            p.WaitForExit();
+
+            p = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = Environment.ExpandEnvironmentVariables("%SystemRoot%\\System32\\cmd.exe"),
+                    Arguments =
+                        "/c \"reg query HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\AppModelUnlock /v AllowDevelopmentWithoutDevLicense | findstr /I /C:\"0x1\"\"",
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                }
+            };
             p.Start();
             p.WaitForExit();
             // Get the output
             string output = p.StandardOutput.ReadToEnd();
             // Check if the output contains "0x1"
-            if (output.Contains("0x1"))
-            {
-                return true;
-            }
-            return false;
+            return output.Contains("0x1");
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Error while checking if developer mode is enabled: " + ex);
-            Console.ReadKey(true);
+            Console.Log.WriteLine("Utils", "&cAn exception was caught while checking if developer mode is enabled: " + ex, LogLevel.Error);
             return true;
         }
     }

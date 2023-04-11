@@ -8,7 +8,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using Windows.Foundation;
 using McPatch.Utils;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -106,7 +105,7 @@ public class MemObject
     /// <summary>
     /// The current bytes of the result address.
     /// </summary>
-    public string CurrentBytes => M.Mem.ReadBytes(Address.ToString("X"), ByteReadLength).ToHexStringO();
+    public string CurrentBytes => Mu.M.ReadBytes(Address.ToString("X"), ByteReadLength).ToHexStringO();
 
     /// <summary>
     /// If the memory object has already been scanned for.
@@ -128,12 +127,10 @@ public class MemObject
             return false;
         bool success = ApplyIf();
         hexOut = hexOut.Replace(OriginalBytes, CurrentBytes);
-        if (ConfigValue != null && ConfigType == typeof(bool) && (bool)ConfigValue && OriginalBytes == CurrentBytes)
-            Console.WriteLine(
-                $"{Console.WarningPrefix("Patcher")} (in {Console.Value($"{PropertyName}")}) OgBytes are the same as CurrentBytes!");
+        if (ConfigValue != null && ConfigType == typeof(bool) && (bool)ConfigValue! && OriginalBytes == CurrentBytes)
+            Console.Log.WriteLine("Patcher", $"(in &v{PropertyName}&r) OgBytes are the same as CurrentBytes!", LogLevel.Warning);
         else if (OriginalBytes == CurrentBytes)
-            Console.WriteLine(
-                $"{Console.WarningPrefix("Patcher")} No action was performed for {Console.Value($"{PropertyName}")}");
+            Console.Log.WriteLine("Patcher", $"No action was performed for &v{PropertyName}&r", LogLevel.Warning);
         return success;
     }
 
@@ -151,8 +148,7 @@ public class MemObject
         // Check if the config field is null
         if (ConfigField == null)
         {
-            Console.WriteLine(
-                $"{Console.ErrorPrefix("Patcher")} Unable to apply patch: MemObject {Console.Value($"'{PropertyName}'")} does not have a corresponding value in Config.CurrentConfig");
+            Console.Log.WriteLine("Patcher", $"Unable to apply patch: MemObject &v'{PropertyName}'&r does not have a corresponding value in Config.CurrentConfig", LogLevel.Error);
             return false;
         }
 
@@ -160,8 +156,7 @@ public class MemObject
         dynamic? FieldValue = ConfigField.GetValue(Config.CurrentConfig);
         if (FieldValue == null)
         {
-            Console.WriteLine(
-                $"{Console.ErrorPrefix("Patcher")} The corresponding value for MemObject {Console.Value($"'{PropertyName}'")} is unassigned");
+            Console.Log.WriteLine("Patcher", $"Unable to apply patch: The correspondig value for MemObject &v'{PropertyName}'&r is unassigned", LogLevel.Error);
             return false;
         }
 
@@ -174,22 +169,20 @@ public class MemObject
             if ((bool)FieldValue)
             {
                 // If it is, apply the patch
-                bool written = M.Mem.WriteMemory(Address.ToString("X"), "bytes", NewBytes);
+                bool written = Mu.M.WriteMemory(Address.ToString("X"), "bytes", NewBytes);
                 if (!written)
                     Debug.WriteLine($"Memory not written, Address: '{Address:X}', sig: '{Sig}'(+{SigOffset})");
-                Console.WriteLine($"{Console.Prefix("Patcher")} {Console.Value($"{PropertyName}")} has been enabled");
+                Console.Log.WriteLine("Patcher", $"&v{PropertyName}&r has been enabled");
                 return written;
             }
-            else
-                return true; // nothing went wrong so we still need to return true
+            return true; // nothing went wrong so we still need to return true
         }
         else // If it's not a bool, apply the patch using the value as the new bytes
         {
             string type = ConfigField.ToMemTypeString(this); // Convert the type string to a type that Mem. can use
-            bool written = M.Mem.WriteMemory(Address.ToString("X"), type, $"{FieldValue}");
+            bool written = Mu.M.WriteMemory(Address.ToString("X"), type, $"{FieldValue}");
             if (!written) Debug.WriteLine($"Memory not written, Address: '{Address:X}', sig: '{Sig}'(+{SigOffset})");
-            Console.WriteLine(
-                $"{Console.Prefix("Patcher")} {Console.Value($"{PropertyName}")} has been set to {Console.Value($"'{FieldValue}'")}");
+            Console.Log.WriteLine("Patcher", $"&v{PropertyName}&r has been set to &v'{FieldValue}'&r");
             return written;
         }
     }
@@ -199,16 +192,18 @@ public class MemObject
     /// </summary>
     public void Scan()
     {
-        Address = M.Mem.GetAddressFromSig(Sig, SigOffset, Executable, Readable, Writable);
+        //Address = Mu.M.GetAddressFromSig(Sig, SigOffset, Executable, Readable, Writable); // Original
+        Address = Mu.ScanForSig(Sig, Executable, Readable, Writable, 1).FirstOrDefault();
+        Address += SigOffset;
         if (Address.IsValidStaticAddress())
         {
-            Console.WriteLine(
-                $"{Console.Prefix("Patcher Debug")} Object info for {Console.Value($"'{PropertyName}'")}: {Console.Value($"'{Address:X}'")}:{Console.Value($"'{M.Mem.ReadBytes(Address.ToString("X"), 11).ToHexString()}'")} ");
-            OriginalBytes = M.Mem.ReadBytes(Address.ToString("X"), ByteReadLength).ToHexStringO();
+            Console.Log.WriteLine("Patcher", $"Object info for &v'{PropertyName}'&r: &v'{Address:X}'&r:&v'{Mu.M.ReadBytes(Address.ToString("X"), 11).ToHexString()}'&r");
+            OriginalBytes = Mu.M.ReadBytes(Address.ToString("X"), ByteReadLength).ToHexStringO();
         }
         else
-            Console.WriteLine(
-                $"{Console.ErrorPrefix("Patcher")} Address for {Console.Value($"'{PropertyName}'")} not found, sig: {Console.Value($"'{Sig}'")} {Console.ErrorTextColor}(Please report this!){Console.R}");
+        {
+            Console.Log.WriteLine("Patcher", $"Address for &v'{PropertyName}'&r not found, sig: &v'{Sig}'&r &c(Please report this!)&r", LogLevel.Error);
+        }
 
         Scanned = true;
     }
@@ -222,7 +217,7 @@ public class MemObject
         if (!Scanned) Scan();
         if (!Address.IsValidStaticAddress())
             return false;
-        bool written = M.Mem.WriteMemory(Address.ToString("X"), "bytes", NewBytes);
+        bool written = Mu.M.WriteMemory(Address.ToString("X"), "bytes", NewBytes);
         if (!written) Debug.WriteLine($"Memory not written, Address: '{Address:X}', sig: '{Sig}'(+{SigOffset})");
         return written;
     }

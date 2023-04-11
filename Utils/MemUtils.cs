@@ -51,8 +51,7 @@ public static class MemUtils
                 break;
             default:
                 // If the type is not supported, return false
-                Console.WriteLine($"{Console.ErrorPrefix("Patcher")} Property {Console.Value($"'{obj}'")} has an unsupported type");
-                break;
+                throw new NotSupportedException($"The type '{type}' is not supported!");
         }
         return result;
         

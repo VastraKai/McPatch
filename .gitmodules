@@ -1,0 +1,3 @@
+[submodule "ExtendedConsole"]
+	path = ExtendedConsole
+	url = https://github.com/VastraKai/ExtendedConsole

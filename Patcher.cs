@@ -4,99 +4,86 @@ using McPatch.Utils;
 namespace McPatch;
 public static class Patcher
 {
+    private static string _mcPath = string.Empty;
+    private static string _mcExe = string.Empty;
+    private static string _mcExeBak = string.Empty;
+    public static string RoamingState => Environment.ExpandEnvironmentVariables("%localappdata%\\packages\\Microsoft.MinecraftUWP_8wekyb3d8bbwe\\RoamingState");
+    private static string CurrentMcSize => new FileInfo(_mcExe).Length.ToString();
     public static void BackupCheck()
     {
-        Console.WriteLine($"{Console.Prefix("Patcher Debug")} LastMcVersionPath: {Console.Value(LastMcVersionPath)}");
-        Console.WriteLine($"{Console.Prefix("Patcher Debug")} CurrentMcVersion: {Console.Value(CurrentMcVersion)}");
-
-        string LastMcVersion;
-        if (!File.Exists(LastMcVersionPath))
-            LastMcVersion = CurrentMcVersion;
-        else
-            LastMcVersion = File.ReadAllText(LastMcVersionPath).Replace("\n", "");
-        Console.WriteLine($"{Console.Prefix("Patcher Debug")} LastMcVersion: {Console.Value(LastMcVersion)}");
-
-        if (LastMcVersion != CurrentMcVersion && File.Exists(mcExeBak))
+        Console.Log.WriteLine("Patcher", $"Checking backup...", LogLevel.Debug);
+        Console.Log.WriteLine("Patcher", $"Current Minecraft size: &v{CurrentMcSize}&r", LogLevel.Debug);
+        if (File.Exists(_mcExeBak) && CurrentMcSize != new FileInfo(_mcExeBak).Length.ToString())
         {
-            Console.WriteLine($"{Console.WarningPrefix("Patcher")} Minecraft version changed from {Console.Value(LastMcVersion)} to {Console.Value(CurrentMcVersion)}, recreating backup file.{Console.R}");
-            File.Delete(mcExeBak);
-            File.WriteAllText(LastMcVersionPath, CurrentMcVersion);
+            Console.Log.WriteLine("Patcher", $"Backup Minecraft size: &v{new FileInfo(_mcExeBak).Length}&r", LogLevel.Debug);
+            Console.Log.WriteLine("Patcher", $"&eMinecraft size changed, recreating backup file.", LogLevel.Warning);
+            File.Delete(_mcExeBak);
         }
     }
     public static void BackupRestore()
     {
-        Console.WriteLine($"{Console.Prefix("Patcher")} {Console.Value("Restoring from backup...")}");
-        //Console.WriteLine($"{Console.Prefix("Patcher Debug")} Setting access permissions for path {Console.Value(mcPath)}");
-        //Util.GrantAccess(mcPath);
-        M.Dispose();
+        Console.Log.WriteLine("Patcher", $"Restoring from backup...", LogLevel.Info);
+        Mu.Dispose();
         while (Util.IsProcOpen("Minecraft.Windows")) { }
-        Console.Write($"{Console.Prefix("Patcher Debug")} Restoring...\r");
-        File.Copy(mcExeBak, mcExe, true);
+        Console.Log.Write("Patcher", "Restoring...&r\r", LogLevel.Debug);
+        File.Copy(_mcExeBak, _mcExe, true);
         Console.Write($"\r           \r");
-
-        Console.WriteLine($"{Console.Prefix("Patcher Debug")} Resetting memory...");
-        M.Setup(false);
-        Console.WriteLine($"{Console.Prefix("Patcher")} {Console.GreenTextColor}Restore completed!{Console.R}");
+        
+        Console.Log.WriteLine("Patcher", $"&rResetting memory...", LogLevel.Debug);
+        Mu.Setup();
+        Console.Log.WriteLine("Patcher", $"&aRestore completed!&r", LogLevel.Success);
     }
     public static void DoBackupStuff()
     {
-        bool BackupExists = File.Exists(mcExeBak);
+        bool BackupExists = File.Exists(_mcExeBak);
 
         BackupCheck();
-        if (!File.Exists(mcExeBak))
+        if (!File.Exists(_mcExeBak))
         {
-            File.Copy(mcExe, mcExeBak, true);
+            File.Copy(_mcExe, _mcExeBak, true);
         }
         if (BackupExists)
         {
             BackupRestore();
         }
         else
-            Console.WriteLine($"{Console.WarningPrefix("Patcher")} Backup will not be used!");
+            Console.Log.WriteLine("Patcher", "Backup will not be used!", LogLevel.Warning);
     }
-    private static string mcPath = string.Empty;
-    private static string mcExe = string.Empty;
-    private static string mcExeBak = string.Empty;
-    private static string LastMcVersionPath = string.Empty;
-    private static string CurrentMcVersion = string.Empty;
 
     public static void GetMcStuff()
     {
         if (Util.McProcess != null && Util.McProcess.MainModule != null)
-            mcPath = Path.GetFullPath(Util.McProcess.MainModule.FileName).Replace("Minecraft.Windows.exe", "");
-        mcExe = mcPath + "Minecraft.Windows.exe";
-        mcExeBak = mcExe + ".bak";
-        LastMcVersionPath = Environment.ExpandEnvironmentVariables("%localappdata%\\packages\\Microsoft.MinecraftUWP_8wekyb3d8bbwe\\roamingstate\\lastMcVersion.txt");
-        CurrentMcVersion = Util.McGetVersion();
+            _mcPath = Path.GetFullPath(Util.McProcess.MainModule.FileName).Replace("Minecraft.Windows.exe", "");
+        _mcExe = _mcPath + "Minecraft.Windows.exe";
+        _mcExeBak = _mcExe + ".bak";
     }
     public static bool Patch()
     {
         bool success = true;
-
-        Console.WriteLine($"{Console.Prefix("Patcher")} Preparing...");
+        Console.Log.WriteLine("Patcher", "Preparing...");
         if (!Util.IsAppxInstalled("Microsoft.Minecraft*"))
         {
-            Console.WriteLine($"{Console.ErrorPrefix("Patcher")} Minecraft is not installed! Please install Minecraft using McLauncher then try again.");
+            Console.Log.WriteLine("Patcher", "Minecraft is not installed! Please install Minecraft using McLauncher then try again.", LogLevel.Error);
             return false;
         }
-        M.Setup(false);
+        Mu.Setup();
         GetMcStuff();
-        Console.WriteLine($"{Console.Prefix("Patcher Debug")} mcPath: {Console.Value(mcPath)}");
-        Console.WriteLine($"{Console.Prefix("Patcher Debug")} mcExe: {Console.Value(mcExe)}");
-        Console.WriteLine($"{Console.Prefix("Patcher Debug")} mcExeBak: {Console.Value(mcExeBak)}");
-        if (mcPath.Contains("Program Files\\WindowsApps\\Microsoft.Minecraft", StringComparison.CurrentCultureIgnoreCase)) {
-            Console.WriteLine($"{Console.ErrorPrefix("Patcher")} The default Minecraft directory is not writable.");
-            Console.WriteLine($"{Console.ErrorPrefix("Patcher")} Visit https://github.com/VastraKai/McPatch/commit/458c104322c4a22ab20cd2a57ad2a3309776eb84 for more info.");
+        Console.Log.WriteLine("Patcher", $"mcPath: &v{_mcPath}&r", LogLevel.Debug);
+        Console.Log.WriteLine("Patcher", $"mcExe: &v{_mcExe}&r", LogLevel.Debug);
+        Console.Log.WriteLine("Patcher", $"mcExeBak: &v{_mcExeBak}&r", LogLevel.Debug);
+        if (_mcPath.Contains("Program Files\\WindowsApps\\Microsoft.Minecraft", StringComparison.CurrentCultureIgnoreCase)) {
+            Console.Log.WriteLine("Patcher", "The default Minecraft directory is not writable.", LogLevel.Error);
+            Console.Log.WriteLine("Patcher", "View the readme for more info.", LogLevel.Error);
             return false;
         }
-        Console.WriteLine($"{Console.Prefix("Patcher Debug")} Setting access permissions for path {Console.Value(mcPath)}");
-        Util.GrantAccess(mcPath);
+        Console.Log.WriteLine("Patcher", $"Setting access permissions for path &v{_mcPath}&r", LogLevel.Debug);
+        Util.GrantAccess(_mcPath);
         DoBackupStuff();
 
-        string mcHex = File.ReadAllBytes(mcExe).ToHexStringO();
-        Console.WriteLine($"{Console.Prefix("Patcher")} Scanning...");
+        string mcHex = File.ReadAllBytes(_mcExe).ToHexStringO();
+        Console.Log.WriteLine("Patcher", $"Scanning...", LogLevel.Debug);
         foreach (MemObject obj in Objects.MemObjects) if(!obj.Scanned) obj.Scan();
-        Console.WriteLine($"{Console.Prefix("Patcher")} Applying settings...");
+        Console.Log.WriteLine("Patcher", $"Applying settings...", LogLevel.Debug);
         foreach (MemObject obj in Objects.MemObjects)
         {
             bool PatchApplied = obj.PatchApply(mcHex, out mcHex);
@@ -106,12 +93,11 @@ public static class Patcher
         }
         GC.Collect(GC.MaxGeneration, GCCollectionMode.Aggressive, true, true);
         GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true, true);
-        Console.WriteLine($"{Console.Prefix("Patcher Debug")} Killing Minecraft");
-        M.Dispose();
+        Console.Log.WriteLine("Patcher", $"Killing Minecraft", LogLevel.Debug);
+        Mu.Dispose();
         MultiInstancePatch();
-        Console.WriteLine($"{Console.Prefix("Patcher Debug")} Writing new bytes to EXE");
-        FileUtils.WriteFile(mcExe, mcHex.FromHexStringO());
-        File.WriteAllText(LastMcVersionPath, CurrentMcVersion);
+        Console.Log.WriteLine("Patcher", $"Writing new bytes to EXE", LogLevel.Debug);
+        FileUtils.WriteFile(_mcExe, mcHex.FromHexStringO());
         return success;
     }
     public static void MultiInstancePatch()
@@ -120,37 +106,37 @@ public static class Patcher
         {
             if (Config.CurrentConfig.McMultiInstance)
             {
-                Console.WriteLine($"{Console.Prefix("Patcher Debug")} Enabling multi instance, patching AppxManifest file");
-                bool ReregisterNeeded = ClientUtils.EnableMultiInstance(mcPath);
+                Console.Log.WriteLine("Patcher", $"Enabling multi instance, patching AppxManifest file", LogLevel.Debug);
+                bool ReregisterNeeded = ClientUtils.EnableMultiInstance(_mcPath);
                 if (ReregisterNeeded)
                 {
-                    Console.WriteLine($"{Console.Prefix("Patcher Debug")} Re-registering appx");
-                    Util.ReRegisterPackage("Microsoft.MinecraftUWP_8wekyb3d8bbwe", mcPath).Wait();
+                    Console.Log.WriteLine("Patcher", $"Re-registering appx", LogLevel.Debug);
+                    Util.ReRegisterPackage("Microsoft.MinecraftUWP_8wekyb3d8bbwe", _mcPath).Wait();
                 }
                 else
                 {
-                    Console.WriteLine($"{Console.Prefix("Patcher Debug")} Multi-instance is already enabled.");
+                    Console.Log.WriteLine("Patcher", $"Multi-instance is already enabled.", LogLevel.Debug);
                 }
             }
             else
             {
-                Console.WriteLine($"{Console.Prefix("Patcher Debug")} Disabling multi instance, patching AppxManifest file");
-                bool ReregisterNeeded = ClientUtils.DisableMultiInstance(mcPath);
+                Console.Log.WriteLine("Patcher", $"Disabling multi instance, patching AppxManifest file", LogLevel.Debug);
+                bool ReregisterNeeded = ClientUtils.DisableMultiInstance(_mcPath);
                 if (ReregisterNeeded)
                 {
-                    Console.WriteLine($"{Console.Prefix("Patcher Debug")} Re-registering appx");
-                    Util.ReRegisterPackage("Microsoft.MinecraftUWP_8wekyb3d8bbwe", mcPath).Wait();
+                    Console.Log.WriteLine("Patcher", $"Re-registering appx", LogLevel.Debug);
+                    Util.ReRegisterPackage("Microsoft.MinecraftUWP_8wekyb3d8bbwe", _mcPath).Wait();
                 }
                 else
                 {
-                    Console.WriteLine($"{Console.Prefix("Patcher Debug")} Multi-instance is already disabled.");
+                    Console.Log.WriteLine("Patcher", $"Multi-instance is already disabled.", LogLevel.Debug);
                 }
             }
         }
         else
         {
-            Console.WriteLine($"{Console.ErrorPrefix("Patcher")}{Console.ErrorTextColor} Unable to use multi-instance: Developer mode is not enabled.{Console.R}");
-            Console.WriteLine($"{Console.ErrorPrefix("Patcher")}{Console.ErrorTextColor} Please enable developer mode in ms-settings:developers.{Console.R}");
+            Console.Log.WriteLine("Patcher", $"&cUnable to use multi-instance: Developer mode is not enabled.&r", LogLevel.Error);
+            Console.Log.WriteLine("Patcher", $"&cPlease enable developer mode in ms-settings:developers.&r", LogLevel.Error);
         }
     }
 }
