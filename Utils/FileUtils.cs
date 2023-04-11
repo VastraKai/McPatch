@@ -1,4 +1,4 @@
-﻿namespace McPatch;
+﻿namespace McPatch.Utils;
 public static class FileUtils
 {
     // Method for writing a byte array to a file, with progress

@@ -1,4 +1,5 @@
 ﻿global using Console = CustomConsole.Console;
+using McPatch.Utils;
 
 namespace McPatch;
 

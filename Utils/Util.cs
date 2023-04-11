@@ -5,7 +5,7 @@ using Windows.ApplicationModel;
 using Windows.Management.Core;
 using Windows.Management.Deployment;
 
-namespace McPatch;
+namespace McPatch.Utils;
 public static class Util
 {
     /// <summary>

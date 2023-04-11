@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace McPatch;
+namespace McPatch.Utils;
 public static class ClientUtils
 {
     private static readonly string orig1 = "<Application Id=\"App\" Executable=\"Minecraft.Windows.exe\" EntryPoint=\"Minecraft_Win10.App\">";

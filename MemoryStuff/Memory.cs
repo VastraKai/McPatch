@@ -1,4 +1,5 @@
-﻿using Memory;
+﻿using McPatch.Utils;
+using Memory;
 
 namespace McPatch;
 public static class M

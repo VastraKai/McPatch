@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Foundation;
+using McPatch.Utils;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace McPatch;

@@ -1,8 +1,7 @@
-﻿using Memory;
-using System.Reflection;
-using System.Runtime.CompilerServices;
+﻿using System.Reflection;
+using Memory;
 
-namespace McPatch;
+namespace McPatch.Utils;
 public static class MemUtils
 {
     /// <summary>

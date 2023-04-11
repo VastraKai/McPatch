@@ -1,8 +1,7 @@
 ﻿using System.Globalization;
 using System.Text;
-using System.Threading;
 
-namespace McPatch;
+namespace McPatch.Utils;
 public static class Extensions
 {
     #region IsValidStaticAddress overrides
