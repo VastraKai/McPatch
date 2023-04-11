@@ -20,6 +20,10 @@ jobs:
         dotnet-version: 7.0.x
     - name: Restore dependencies
       run: dotnet restore
+    - name: Init submodule
+      run: git submodule init
+    - name: Add submodule
+      run: git submodule update --recursive --remote --force
     - name: Publish
       run: dotnet publish McPatch.csproj -o build\ -c Release -p:PublishTrimmed=true -p:PublishSingleFile=true -p:SelfContained=true -p:PublishReadyToRun=true -p:IncludeNativeLibrariesForSelfExtract=true
     - name: Upload build artifacts
