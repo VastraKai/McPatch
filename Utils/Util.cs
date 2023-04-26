@@ -118,7 +118,7 @@ public static class Util
         return modBeginEnd;
     }
     public static ModBeginEnd McMem => GetModuleInMemory("Minecraft.Windows");
-    public static void OpenMc() => Process.Start("explorer.exe", "Minecraft://");
+    public static void OpenMc() => Process.Start("cmd.exe", "/c start \"\" shell:AppsFolder\\Microsoft.MinecraftUWP_8wekyb3d8bbwe!App");
     public static void Kill() => Process.GetCurrentProcess().Kill();
 
     public static Process? McProcess => Process.GetProcessesByName("Minecraft.Windows").FirstOrDefault();

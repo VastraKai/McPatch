@@ -20,13 +20,13 @@ public static class Objects
         },
         new MemObject("AlwaysSprint")
         {
-            Sig = "C7 81 ? ? ? ? ? ? ? ? 66 ? ? ? ? ? ? ? ? C6 ? ? ? ? ? ? C7",
-            SigOffset = 9,
+            Sig = "C7 ? ? ? ? ? ? 66 ? ? ? ? ? C6 ? ? ? C7 ? ? ? ? ? ? ? ? ? 75",
+            SigOffset = 06,
             NewBytes = "01"
         },
         new MemObject("ShowPlayerNametag")
         {
-            Sig = "4C 8B ? ? ? ? ? 0f ? ? ? ? ? 49 8B D7 49 8B CE e8 ? ? ? ? 84 c0",
+            Sig = "4C 8? ? ? 4C 3B E? 0F ? ? ? ? ? 49 8? ? 49 8? ?",
             SigOffset = 04,
             NewBytes = "90 90 90"
         },
@@ -38,9 +38,9 @@ public static class Objects
         },
         new MemObject("ForceShowCoordinates")
         {
-            Sig = "? ? ? ? 09 00 00 48 85 C0 74 0D ? ? ? ? 74 07",
+            Sig = "09 00 00 48 85 C0 74 ? ? ? ? ? 74",
             SigOffset = 12,
-            NewBytes = "90 90 90 90"
+            NewBytes = "90 90"
         }
     };
 }
