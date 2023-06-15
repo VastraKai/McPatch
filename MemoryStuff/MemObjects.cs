@@ -17,7 +17,7 @@ public static class Objects
             SigOffset = 0,
             NewBytes = "00 00 40 40",
             Executable = false
-        },
+        }, 
         new("AlwaysSprint")
         {
             Sig = "C7 41 ? ? ? ? ? 66 C7 ? ? ? ? C6 41 ? ? C7 41 ? ? ? ? ? 84 ? 75 ? 88 ? ? C3",
@@ -26,9 +26,9 @@ public static class Objects
         },
         new("ShowPlayerNametag")
         {
-            Sig = "4C 8? ? ? 4C 3B E? 0F ? ? ? ? ? 49 8? ? 49 8? ?",
-            SigOffset = 04,
-            NewBytes = "90 90 90"
+            Sig = "0F 84 ? ? ? ? 49 ? ? 49 ? ? E8 ? ? ? ? 84 ? 0F 84",
+            SigOffset = 0,
+            NewBytes = "90 90 90 90 90 90"
         },
         new("ForceShowNametags")
         {
