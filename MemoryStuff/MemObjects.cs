@@ -5,38 +5,38 @@ public static class Objects
     {
         // Each MemObject is a patch that will be applied to the game.
         // The first parameter must have a corresponding config field.
-        new MemObject("CancelSwing")
+        new("CancelSwing")
         {
             Sig = "48 81 ? ? ? ? ? 48 8b ? ? ? ? ? 48 33 c4 48 89 ? ? ? 48 8b d9 80 ? ? ? 00 00 00",
             SigOffset = 0x20,
             NewBytes = "EB"
         },
-        new MemObject("GuiScale")
+        new("GuiScale")
         {
             Sig = "00 00 ? ? 00 00 A0 40 00 00 C0",
             SigOffset = 0,
             NewBytes = "00 00 40 40",
             Executable = false
         },
-        new MemObject("AlwaysSprint")
+        new("AlwaysSprint")
         {
-            Sig = "C7 ? ? ? ? ? ? 66 ? ? ? ? ? C6 ? ? ? C7 ? ? ? ? ? ? ? ? ? 75",
+            Sig = "C7 41 ? ? ? ? ? 66 C7 ? ? ? ? C6 41 ? ? C7 41 ? ? ? ? ? 84 ? 75 ? 88 ? ? C3",
             SigOffset = 06,
             NewBytes = "01"
         },
-        new MemObject("ShowPlayerNametag")
+        new("ShowPlayerNametag")
         {
             Sig = "4C 8? ? ? 4C 3B E? 0F ? ? ? ? ? 49 8? ? 49 8? ?",
             SigOffset = 04,
             NewBytes = "90 90 90"
         },
-        new MemObject("ForceShowNametags")
+        new("ForceShowNametags")
         {
             Sig = "? ? ? ? ? ? 49 8B ? 48 8B ? ? ? 48 8B ? ? ? ? ? 49 8B ? 48 8B ? ? ? ? ? ? ? ? ? ? ? 49",
             SigOffset = 0,
             NewBytes = "90 90 90 90 90 90"
         },
-        new MemObject("ForceShowCoordinates")
+        new("ForceShowCoordinates")
         {
             Sig = "09 00 00 48 85 C0 74 ? ? ? ? ? 74",
             SigOffset = 12,
