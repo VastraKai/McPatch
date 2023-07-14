@@ -26,7 +26,7 @@ public static class Objects
         },
         new("ShowPlayerNametag")
         {
-            Sig = "0F 84 ? ? ? ? 49 ? ? 49 ? ? E8 ? ? ? ? 84 ? 0F 84",
+            Sig = "0F 84 ? ? ? ? 49 8B ? 48 8B ? E8 ? ? ? ? 84 C0 0F 84 ? ? ? ? 49 8B",
             SigOffset = 0,
             NewBytes = "90 90 90 90 90 90"
         },
