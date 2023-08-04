@@ -14,7 +14,7 @@ public static class Objects
         },
         new("GuiScale")
         {
-            Sig = "00 00 ? ? 00 00 A0 40 00 00 C0",
+            Sig = "00 00 ? ? 00 00 A0 40 00 00 C0 40",
             SigOffset = 0,
             NewBytes = "00 00 40 40",
             Executable = false
