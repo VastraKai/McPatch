@@ -1,4 +1,5 @@
 ﻿
+using McPatch.ConsoleMenu;
 using McPatch.Utils;
 
 namespace McPatch;
@@ -104,7 +105,7 @@ public static class Patcher
     {
         if (Util.IsDeveloperModeEnabled())
         {
-            if (Config.CurrentConfig.McMultiInstance)
+            if (((BoolMenuItem)Program.ConfigMenu.GetMenuItem("McMultiInstance")!).Value)
             {
                 Console.Log.WriteLine("Patcher", $"Enabling multi instance, patching AppxManifest file", LogLevel.Debug);
                 bool ReregisterNeeded = ClientUtils.EnableMultiInstance(_mcPath);

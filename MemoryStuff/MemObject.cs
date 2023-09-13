@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using McPatch.ConsoleMenu;
 using McPatch.Utils;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -112,8 +113,8 @@ public class MemObject
     /// </summary>
     public bool Scanned { get; private set; } = false;
 
-    private dynamic? ConfigValue = null;
-    private Type? ConfigType = null;
+    public dynamic? ConfigValue = null;
+    public Type? ConfigType = null;
 
     #endregion
 
@@ -144,29 +145,55 @@ public class MemObject
         if (!Address.IsValidStaticAddress())
             return false;
         // Get the corresponding config field
-        FieldInfo? ConfigField = Config.CurrentConfig.GetType().GetField(PropertyName);
+        MenuItem? MenuItem = Program.ConfigMenu.GetMenuItem(PropertyName);
         // Check if the config field is null
-        if (ConfigField == null)
+        if (MenuItem == null)
         {
             Console.Log.WriteLine("Patcher", $"Unable to apply patch: MemObject &v'{PropertyName}'&r does not have a corresponding value in Config.CurrentConfig", LogLevel.Error);
             return false;
         }
 
         // Get the ConfigField's Value
-        dynamic? FieldValue = ConfigField.GetValue(Config.CurrentConfig);
-        if (FieldValue == null)
+
+        string type = "";
+
+        if (MenuItem is BoolMenuItem boolMenuItem)
+        {
+            ConfigValue = boolMenuItem.Value;
+            ConfigType = typeof(bool);
+            type = "byte";
+        }
+        else if (MenuItem is IntMenuItem intMenuItem)
+        {
+            ConfigValue = intMenuItem.Value;
+            ConfigType = typeof(int);
+            type = "int";
+        }
+        else if (MenuItem is FloatMenuItem floatMenuItem)
+        {
+            ConfigValue = floatMenuItem.Value;
+            ConfigType = typeof(float);
+            type = "float";
+        }
+        else
+        {
+            // Unsupported type
+            Console.Log.WriteLine("Patcher", $"Unable to apply patch: MemObject &v'{PropertyName}'&r has an unsupported type", LogLevel.Error);
+            return false;
+        }
+        
+        if (ConfigValue == null)
         {
             Console.Log.WriteLine("Patcher", $"Unable to apply patch: The correspondig value for MemObject &v'{PropertyName}'&r is unassigned", LogLevel.Error);
             return false;
         }
 
-        ConfigValue = FieldValue;
-        ConfigType = ConfigField.FieldType;
+         
         // Check if the ConfigField is of type bool
-        if (ConfigField.FieldType == typeof(bool))
+        if (ConfigType == typeof(bool))
         {
             // If it is, check if it's true
-            if ((bool)FieldValue)
+            if ((bool)ConfigValue)
             {
                 // If it is, apply the patch
                 bool written = Mu.M.WriteMemory(Address.ToString("X"), "bytes", NewBytes);
@@ -178,11 +205,10 @@ public class MemObject
             return true; // nothing went wrong so we still need to return true
         }
         else // If it's not a bool, apply the patch using the value as the new bytes
-        {
-            string type = ConfigField.ToMemTypeString(this); // Convert the type string to a type that Mem. can use
-            bool written = Mu.M.WriteMemory(Address.ToString("X"), type, $"{FieldValue}");
+        { // Convert the type string to a type that Mem. can use
+            bool written = Mu.M.WriteMemory(Address.ToString("X"), type, $"{ConfigValue}");
             if (!written) Debug.WriteLine($"Memory not written, Address: '{Address:X}', sig: '{Sig}'(+{SigOffset})");
-            Console.Log.WriteLine("Patcher", $"&v{PropertyName}&r has been set to &v'{FieldValue}'&r");
+            Console.Log.WriteLine("Patcher", $"&v{PropertyName}&r has been set to &v'{ConfigValue}'&r");
             return written;
         }
     }
