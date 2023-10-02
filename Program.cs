@@ -15,6 +15,13 @@ public static class Program
         Console.Log.RegisterColorShortcut("&p", 0.0f, 1.0f, 1.0f); // Prefix
         if (args.Length > 0 && args[0].ToLower() == "--reset-config") Config.ResetConfig();
 
+        if (!Util.IsAppxInstalled("Microsoft.MinecraftUWP"))
+        {
+            Console.Log.WriteLine("Main", "&cMinecraft is not installed!&r", LogLevel.Critical);
+            Console.WaitForEnter("Press enter to exit...");
+            return;
+        }
+        
         // Initialize the config menu
         ConfigMenu = new Menu($"{Console.Log.ColorB}[Config Menu]{Console.Log.R}", Config.ConfigPath);
         ConfigMenu.AddMenuItem("GuiScale", "Gui Scale", 3.0f);
