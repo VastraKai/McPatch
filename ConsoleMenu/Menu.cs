@@ -124,6 +124,7 @@ public class Menu
     private void ShowMenuInternal(int selection = 0)
     {
         // Clear the console
+        Console.Clear();
         Console.SwitchToAlternativeBuffer();
         
         // Print the title
