@@ -124,14 +124,24 @@ public static class Util
     public static Process? McProcess => Process.GetProcessesByName("Minecraft.Windows").FirstOrDefault();
     public static void GrantAccess(string fullPath)
     {
-        DirectoryInfo dInfo = new(fullPath);
-        DirectorySecurity dSecurity = dInfo.GetAccessControl();
-        // Set the owner of the directory
-        dSecurity.SetOwner(new NTAccount(Environment.UserName));
-        dSecurity.SetAccessRuleProtection(true, false);
-        dSecurity.AddAccessRule(new FileSystemAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null), FileSystemRights.FullControl, InheritanceFlags.ObjectInherit | InheritanceFlags.ContainerInherit, PropagationFlags.None, AccessControlType.Allow));
-        dSecurity.AddAccessRule(new FileSystemAccessRule(new SecurityIdentifier("S-1-15-2-1"), FileSystemRights.FullControl, InheritanceFlags.ObjectInherit | InheritanceFlags.ContainerInherit, PropagationFlags.None, AccessControlType.Allow));
-        dInfo.SetAccessControl(dSecurity);
+        try
+        {
+            DirectoryInfo dInfo = new(fullPath);
+            DirectorySecurity dSecurity = dInfo.GetAccessControl();
+            // Set the owner of the directory
+            dSecurity.SetOwner(new NTAccount(Environment.UserName));
+            dSecurity.SetAccessRuleProtection(true, false);
+            dSecurity.AddAccessRule(new FileSystemAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null),
+                FileSystemRights.FullControl, InheritanceFlags.ObjectInherit | InheritanceFlags.ContainerInherit,
+                PropagationFlags.None, AccessControlType.Allow));
+            dSecurity.AddAccessRule(new FileSystemAccessRule(new SecurityIdentifier("S-1-15-2-1"),
+                FileSystemRights.FullControl, InheritanceFlags.ObjectInherit | InheritanceFlags.ContainerInherit,
+                PropagationFlags.None, AccessControlType.Allow));
+            dInfo.SetAccessControl(dSecurity);
+        } catch (Exception ex)
+        {
+            Console.Log.WriteLine("Utils", "Unable to grant access to " + fullPath + ": " + ex, LogLevel.Error);
+        }
     }
     public static bool IsProcOpen(string processName)
     {
