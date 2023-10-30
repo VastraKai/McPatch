@@ -1,5 +1,5 @@
 # McPatch
-### Warning - McPatch currently only works if you use an MC launcher, such as <a href="https://github.com/MCMrARM/mc-w10-version-launcher/releases/latest">this one</a>
+### Warning - McPatch currently only works if you use an MC launcher, such as <a href="https://jiayi.software/launcher">this one</a>
 #### Patches Minecraft's executable to include certain byte-patches.
 [![.NET release](https://github.com/VastraKai/McPatch/actions/workflows/dotnet.yml/badge.svg)](https://github.com/VastraKai/McPatch/actions/workflows/dotnet.yml)
 
