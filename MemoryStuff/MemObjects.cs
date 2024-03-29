@@ -28,13 +28,13 @@ public static class Objects
         new("ShowPlayerNametag")
         {
             // if you have ShowPlayerNametag in your client, you should update it to use this sig
-            Sig = "? ? ? ? ? ? 49 8B ? 48 8B ? E8 ? ? ? ? 84 C0 0F 84 ? ? ? ? 49 8B ? ? ? ? ? 49",
+            Sig = "0F 84 ? ? ? ? 49 8B ? 48 8B ? E8 ? ? ? ? 84 C0 ? ? ? ? ? ? 49 8D",
             SigOffset = 0,
             NewBytes = "90 90 90 90 90 90"
         },
         new("ForceShowNametags")
         {
-            Sig = "? ? ? ? ? ? 49 8B ? 48 8B ? E8 ? ? ? ? 84 C0 0F 84 ? ? ? ? 49 8B ? ? ? ? ? 49",
+            Sig = "0F 84 ? ? ? ? 49 8B ? 48 8B ? E8 ? ? ? ? 84 C0 ? ? ? ? ? ? 49 8D",
             SigOffset = 0x13,
             NewBytes = "90 90 90 90 90 90"
         },
